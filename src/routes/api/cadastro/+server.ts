@@ -2,7 +2,7 @@ import { createClient } from '@supabase/supabase-js';
 import { json } from '@sveltejs/kit';
 import type { RequestHandler } from './$types';
 
-const supabaseUrl = 'https://zcrzyhdzjanivracmoub.supabase.co'\;
+const supabaseUrl = 'https://zcrzyhdzjanivracmoub.supabase.co'
 const supabaseServiceKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inpjcnp5aGR6amFuaXZyYWNtb3ViIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc1ODI0NTA5MSwiZXhwIjoyMDczODIxMDkxfQ.T4VNBfbCClcJbhxFvEBXTFsRyZUqVtQIlnHaYVlDVao';
 
 const supabaseAdmin = createClient(supabaseUrl, supabaseServiceKey, {
