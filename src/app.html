@@ -1,0 +1,89 @@
+<!doctype html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1" />
+		%sveltekit.head%
+	<link rel="icon" href="/favicon.svg" />
+	<style>
+	body {
+		font-family: 'Inter', 'Roboto', Arial, sans-serif;
+		background: linear-gradient(120deg, #f8fafc 0%, #e0e7ff 100%);
+		margin: 0;
+		min-height: 100vh;
+		color: #222;
+	}
+	h2, h3 {
+		font-weight: 600;
+		color: #3b82f6;
+		margin-bottom: 1rem;
+	}
+	input, button, select, textarea {
+		font-family: inherit;
+		font-size: 1rem;
+		border-radius: 8px;
+		border: 1px solid #cbd5e1;
+		padding: 0.7em 1em;
+		margin-bottom: 1rem;
+		outline: none;
+		transition: border 0.2s;
+	}
+	input:focus, textarea:focus, select:focus {
+		border-color: #3b82f6;
+	}
+	button {
+		background: linear-gradient(90deg, #3b82f6 0%, #6366f1 100%);
+		color: #fff;
+		border: none;
+		cursor: pointer;
+		font-weight: 500;
+		box-shadow: 0 2px 8px rgba(59,130,246,0.08);
+		transition: background 0.2s, box-shadow 0.2s;
+	}
+	button:hover {
+		background: linear-gradient(90deg, #6366f1 0%, #3b82f6 100%);
+		box-shadow: 0 4px 16px rgba(59,130,246,0.12);
+	}
+	label {
+		display: block;
+		margin-bottom: 0.5rem;
+		color: #475569;
+		font-size: 1rem;
+	}
+	.card {
+		background: #fff;
+		border-radius: 16px;
+		box-shadow: 0 2px 16px rgba(59,130,246,0.07);
+		padding: 2rem;
+		max-width: 400px;
+		margin: 2rem auto;
+	}
+	.center {
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		justify-content: center;
+		min-height: 80vh;
+	}
+	code {
+		background: #f1f5f9;
+		border-radius: 6px;
+		padding: 0.3em 0.7em;
+		font-size: 1em;
+		color: #334155;
+	}
+	@media (max-width: 600px) {
+		.card {
+			padding: 1rem;
+			max-width: 95vw;
+		}
+		h2, h3 {
+			font-size: 1.3em;
+		}
+	}
+	</style>
+	</head>
+	<body data-sveltekit-preload-data="hover">
+		<div style="display: contents">%sveltekit.body%</div>
+	</body>
+</html>
