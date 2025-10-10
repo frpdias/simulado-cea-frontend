@@ -19,3 +19,4 @@ VITE_SUPABASE_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsI
 ## Deploy
 
 Recomenda-se deploy no Vercel. Configure as variáveis de ambiente no painel do Vercel.
+# Deploy trigger
