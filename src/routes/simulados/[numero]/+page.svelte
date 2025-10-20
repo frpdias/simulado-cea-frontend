@@ -47,6 +47,7 @@
 
   $: pagina = $page;
   $: numeroSimulado = Number($page.params.numero);
+  $: temaSelecionado = $page.url.searchParams.get('tema') || null;
   $: questaoAtual = questoes[indiceAtual] ?? null;
   $: respondidas = Object.keys(respostas).length;
   $: acertosParciais = Object.values(resultados).filter((valor) => valor === 'correta').length;
@@ -72,11 +73,18 @@
       email: session.user.email ?? ''
     };
 
-    const { data: questoesData, error } = await supabase
+    // Construir a query com filtro por tema se especificado
+    let query = supabase
       .from('questoes')
       .select('id, tema, enunciado, alternativa_a, alternativa_b, alternativa_c, alternativa_d, resposta_correta, comentario')
-      .eq('simulado_numero', numeroSimulado)
-      .order('id', { ascending: true });
+      .eq('simulado_numero', numeroSimulado);
+
+    // Aplicar filtro por tema se especificado na URL
+    if (temaSelecionado) {
+      query = query.ilike('tema', temaSelecionado.trim());
+    }
+
+    const { data: questoesData, error } = await query.order('id', { ascending: true });
 
     if (error) {
       erro = error.message;
@@ -292,6 +300,12 @@
       <button class="botao-voltar" on:click={voltarAoPainel}>← Painel</button>
       <div class="cabecalho">
         <h1>Simulado Nº {numeroSimulado}</h1>
+        {#if temaSelecionado}
+          <div class="filtro-tema">
+            <span class="filtro-icone">🔍</span>
+            <span class="filtro-texto">Filtrando por: <strong>{decodeURIComponent(temaSelecionado)}</strong></span>
+          </div>
+        {/if}
       </div>
       <p>
         Revise as questões e selecione a alternativa correta. O cronômetro regressivo de 04:00:00
@@ -521,6 +535,27 @@
     justify-content: space-between;
     gap: 1rem;
     align-items: center;
+  }
+
+  .filtro-tema {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem 1rem;
+    background: rgba(99, 102, 241, 0.1);
+    border: 1px solid rgba(99, 102, 241, 0.3);
+    border-radius: 8px;
+    font-size: 0.875rem;
+    color: #e2e8f0;
+  }
+
+  .filtro-icone {
+    font-size: 1rem;
+  }
+
+  .filtro-texto strong {
+    color: #6366f1;
+    font-weight: 600;
   }
 
   h1 {
