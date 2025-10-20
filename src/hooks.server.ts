@@ -14,22 +14,32 @@ if (!supabaseAnonKey) {
 }
 
 export const handle: Handle = async ({ event, resolve }) => {
-	event.locals.supabase = createSupabaseServerClient({
-		supabaseUrl,
-		supabaseKey: supabaseAnonKey,
-		event
-	}) as any;
+	try {
+		event.locals.supabase = createSupabaseServerClient({
+			supabaseUrl,
+			supabaseKey: supabaseAnonKey,
+			event
+		}) as any;
 
-	event.locals.getSession = async () => {
-		const {
-			data: { session }
-		} = await event.locals.supabase.auth.getSession();
-		return session;
-	};
+		event.locals.getSession = async () => {
+			try {
+				const {
+					data: { session }
+				} = await event.locals.supabase.auth.getSession();
+				return session;
+			} catch (error) {
+				console.error('Erro ao obter sessão:', error);
+				return null;
+			}
+		};
 
-	return resolve(event, {
-		filterSerializedResponseHeaders(name) {
-			return name === 'content-range';
-		}
-	});
+		return resolve(event, {
+			filterSerializedResponseHeaders(name) {
+				return name === 'content-range';
+			}
+		});
+	} catch (error) {
+		console.error('Erro no handle:', error);
+		return resolve(event);
+	}
 };
