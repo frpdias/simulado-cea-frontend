@@ -1149,8 +1149,9 @@
 
   .stat-content {
     display: flex;
-    flex-direction: column;
-    gap: 0.1rem;
+    flex-direction: row;
+    align-items: center;
+    gap: 0.5rem;
     min-width: 0;
     flex: 1;
   }
