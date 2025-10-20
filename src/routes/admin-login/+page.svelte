@@ -195,13 +195,16 @@
   }
 
   .admin-logo {
-    width: 80px;
-    height: 80px;
+    width: 120px;
+    height: 120px;
     border-radius: 50%;
     margin-bottom: 1rem;
-    border: 3px solid rgba(168, 85, 247, 0.3);
-    padding: 0.5rem;
-    background: rgba(168, 85, 247, 0.1);
+    border: 4px solid rgba(168, 85, 247, 0.4);
+    padding: 1rem;
+    background: rgba(168, 85, 247, 0.15);
+    filter: drop-shadow(0 12px 24px rgba(168, 85, 247, 0.6)) brightness(1.15) contrast(1.25);
+    backdrop-filter: blur(15px);
+    transition: all 0.4s ease;
   }
 
   .admin-title h1 {

@@ -1008,10 +1008,15 @@
   }
 
   .hero-brand img {
-    width: clamp(28px, 4vw, 40px);
-    height: clamp(28px, 4vw, 40px);
+    width: clamp(50px, 8vw, 80px);
+    height: clamp(50px, 8vw, 80px);
     object-fit: contain;
-    filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3));
+    filter: drop-shadow(0 8px 16px rgba(59, 130, 246, 0.5)) brightness(1.1) contrast(1.2);
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(10px);
+    padding: 6px;
+    border-radius: 12px;
+    transition: all 0.3s ease;
   }
 
   .hero-brand span {
@@ -1020,6 +1025,12 @@
     color: var(--text-primary);
     text-transform: uppercase;
     font-weight: 600;
+  }
+  
+  .hero-brand:hover img {
+    transform: scale(1.1);
+    filter: drop-shadow(0 12px 24px rgba(59, 130, 246, 0.7)) brightness(1.2) contrast(1.3);
+    box-shadow: 0 0 20px rgba(59, 130, 246, 0.4);
   }
 
   .action-buttons {

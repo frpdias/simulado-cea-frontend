@@ -205,10 +205,15 @@ $: usuariosFiltrados = usuarios.filter((usuario) =>
   }
 
   .admin__brand img {
-    width: 44px;
-    height: 44px;
+    width: 64px;
+    height: 64px;
     object-fit: contain;
-    filter: drop-shadow(0 10px 24px rgba(99, 102, 241, 0.35));
+    filter: drop-shadow(0 12px 28px rgba(99, 102, 241, 0.6)) brightness(1.1) contrast(1.2);
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(10px);
+    padding: 8px;
+    border-radius: 12px;
+    transition: all 0.3s ease;
   }
 
   .admin__brand span {

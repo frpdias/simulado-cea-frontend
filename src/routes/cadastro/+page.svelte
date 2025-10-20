@@ -396,12 +396,17 @@
   }
 
   .brand-logo img {
-    width: clamp(40px, 6vw, 56px);
-    height: clamp(40px, 6vw, 56px);
+    width: clamp(90px, 12vw, 140px);
+    height: clamp(90px, 12vw, 140px);
     object-fit: contain;
-    filter: drop-shadow(0 8px 16px rgba(249, 115, 22, 0.4));
+    filter: drop-shadow(0 12px 24px rgba(249, 115, 22, 0.6)) brightness(1.15) contrast(1.25);
     position: relative;
     z-index: 2;
+    border-radius: 16px;
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(15px);
+    padding: 12px;
+    transition: all 0.4s ease;
   }
 
   .logo-glow {

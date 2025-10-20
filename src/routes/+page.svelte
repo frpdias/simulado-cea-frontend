@@ -227,17 +227,23 @@
 	}
 
 	.brand-logo img {
-		width: clamp(40px, 5vw, 56px);
-		height: clamp(40px, 5vw, 56px);
+		width: clamp(80px, 10vw, 120px);
+		height: clamp(80px, 10vw, 120px);
 		object-fit: contain;
-		filter: drop-shadow(0 12px 28px rgba(59, 130, 246, 0.4));
+		filter: drop-shadow(0 12px 28px rgba(59, 130, 246, 0.6)) brightness(1.1) contrast(1.2);
 		position: relative;
 		z-index: 2;
-		transition: transform 0.3s ease;
+		transition: all 0.3s ease;
+		border-radius: 12px;
+		background: rgba(255, 255, 255, 0.1);
+		backdrop-filter: blur(10px);
+		padding: 8px;
 	}
 
 	.brand-logo:hover img {
-		transform: scale(1.05) rotate(2deg);
+		transform: scale(1.15) rotate(2deg);
+		filter: drop-shadow(0 16px 32px rgba(59, 130, 246, 0.8)) brightness(1.2) contrast(1.3);
+		box-shadow: 0 0 30px rgba(59, 130, 246, 0.4);
 	}
 
 	.brand-pulse {
