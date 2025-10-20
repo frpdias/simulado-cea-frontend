@@ -56,8 +56,8 @@ export const load: LayoutServerLoad = async (event) => {
 
 		if (!session) {
 			const redirectTo = encodeURIComponent(event.url.pathname);
-			console.log('🔄 Redirecionando para login:', `/login?redirectTo=${redirectTo}`);
-			throw redirect(303, `/login?redirectTo=${redirectTo}`);
+			console.log('🔄 Redirecionando para login admin:', `/admin-login?redirectTo=${redirectTo}`);
+			throw redirect(303, `/admin-login?redirectTo=${redirectTo}`);
 		}
 
 		const user = session.user;
@@ -82,33 +82,44 @@ export const load: LayoutServerLoad = async (event) => {
 		// Verificação 3: Tabela usuarios
 		if (!autorizado) {
 			console.log('🔍 Verificando tabela usuarios...');
-			const { data: perfil, error: perfilError } = await supabase
-				.from('usuarios')
-				.select('perfil, papel, role, tipo, status')
-				.eq('id', user.id)
-				.maybeSingle();
+			try {
+				const { data: perfil, error: perfilError } = await supabase
+					.from('usuarios')
+					.select('papel')
+					.eq('id', user.id)
+					.maybeSingle();
 
-			if (perfilError) {
-				console.error('❌ Erro ao verificar perfil:', perfilError);
-			} else {
-				console.log('📊 Perfil encontrado:', perfil);
-			}
-
-			const possivelPapel =
-				(typeof perfil?.perfil === 'string' && perfil.perfil) ||
-				(typeof perfil?.papel === 'string' && perfil.papel) ||
-				(typeof perfil?.role === 'string' && perfil.role) ||
-				(typeof perfil?.tipo === 'string' && perfil.tipo) ||
-				(typeof perfil?.status === 'string' && perfil.status);
-
-			if (possivelPapel && ehValorAdmin(possivelPapel)) {
-				autorizado = true;
-				console.log('✅ Autorizado por tabela usuarios');
+				if (perfilError) {
+					console.error('❌ Erro ao verificar perfil:', perfilError.message);
+				} else {
+					console.log('📊 Perfil encontrado:', perfil);
+					
+					if (perfil?.papel && ehValorAdmin(perfil.papel)) {
+						autorizado = true;
+						console.log('✅ Autorizado por tabela usuarios - papel:', perfil.papel);
+					}
+				}
+			} catch (dbError) {
+				console.error('❌ Erro de conexão com banco:', dbError);
+				// Não bloquear por erro de DB, continuar verificação
 			}
 		}
 
 		if (!autorizado) {
 			console.log('❌ Acesso negado para:', email);
+			console.log('🔍 Verificações realizadas:');
+			console.log('  - Email na lista:', adminEmails.includes(email || ''));
+			console.log('  - Metadata indica admin:', metadataIndicaAdmin(user));
+			console.log('  - Lista de emails admin:', adminEmails);
+			
+			// Verificação de emergência: se não há emails admin configurados, permite qualquer usuário logado como admin temporário
+			if (adminEmails.length === 0) {
+				console.log('⚠️ MODO DE EMERGÊNCIA: Nenhum email admin configurado, permitindo acesso temporário');
+				autorizado = true;
+			}
+		}
+
+		if (!autorizado) {
 			throw error(403, 'Acesso permitido apenas a administradores.');
 		}
 

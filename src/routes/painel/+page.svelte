@@ -10,6 +10,7 @@
     whatsapp?: string;
     status?: string;
     data_cadastro?: string;
+    papel?: string;
   }
 
   const logoFrUrl =
@@ -25,9 +26,31 @@
     return partes.map((parte) => (parte[0] ? parte[0].toUpperCase() : '')).join('') || 'AL';
   }
 
+  function verificarSeEhAdmin(usuario: Usuario | null, perfil: Usuario | null, metadataUser?: any) {
+    // 1. Verificar se tem metadata de admin
+    if (metadataUser) {
+      const metadata = metadataUser;
+      for (const [key, value] of Object.entries(metadata)) {
+        if (typeof value === 'string' && ehValorAdmin(value)) return true;
+        if (Array.isArray(value) && value.some(v => typeof v === 'string' && ehValorAdmin(v))) return true;
+      }
+    }
+
+    // 2. Verificar se tem papel de admin na tabela usuarios
+    if (perfil && perfil.papel && ehValorAdmin(perfil.papel)) return true;
+
+    return false;
+  }
+
+  function ehValorAdmin(valor: string) {
+    const normalizado = valor.trim().toLowerCase();
+    return normalizado === 'admin' || normalizado === 'administrador';
+  }
+
   let carregando = true;
   let usuarioAuth: Usuario | null = null;
   let perfil: Usuario | null = null;
+  let ehAdmin = false;
   let erro = '';
   let erroSimulados = '';
   let carregandoSimulados = true;
@@ -129,6 +152,9 @@
     } else if (dadosPerfil) {
       perfil = dadosPerfil;
     }
+
+    // Verificar se o usuário é admin
+    ehAdmin = verificarSeEhAdmin(usuarioAuth, perfil, session.user.user_metadata);
 
     await carregarSimulados();
     await carregarDesempenho(session.user.id);
@@ -447,6 +473,14 @@
               <div class="status-indicator"></div>
               Status: {statusTexto}
             </span>
+            {#if ehAdmin}
+              <button class="hero-action botao-admin" on:click={() => goto('/admin')}>
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+                </svg>
+                Painel Admin
+              </button>
+            {/if}
             <button class="hero-action botao-sair" on:click={sair}>
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                 <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9"/>
@@ -639,6 +673,12 @@
                 <span class="btn-icon">📊</span>
                 Ver histórico completo
               </button>
+              {#if ehAdmin}
+                <button class="btn-admin large" on:click={() => goto('/admin')}>
+                  <span class="btn-icon">⚙️</span>
+                  Painel de Administração
+                </button>
+              {/if}
             </div>
           </div>
         </div>
@@ -1731,6 +1771,49 @@
     background: rgba(255, 255, 255, 0.1);
     transform: translateY(-1px);
     box-shadow: 0 6px 16px rgba(0, 0, 0, 0.2);
+  }
+
+  .btn-admin {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    padding: 0.875rem 1.5rem;
+    border-radius: 0.75rem;
+    font-weight: 600;
+    font-size: 0.9rem;
+    transition: all 0.3s ease;
+    cursor: pointer;
+    border: none;
+    text-decoration: none;
+    position: relative;
+    overflow: hidden;
+    flex: 1;
+    min-width: 0;
+    background: linear-gradient(135deg, #7c3aed, #a855f7);
+    color: white;
+    box-shadow: 0 4px 12px rgba(124, 58, 237, 0.3);
+  }
+
+  .btn-admin.large {
+    padding: 1rem 2rem;
+    font-size: 1rem;
+  }
+
+  .btn-admin:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(124, 58, 237, 0.4);
+  }
+
+  .botao-admin {
+    background: linear-gradient(135deg, #7c3aed 0%, #a855f7 100%);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+  }
+
+  .botao-admin:hover {
+    box-shadow: 
+      0 15px 30px rgba(124, 58, 237, 0.4),
+      inset 0 1px 0 rgba(255, 255, 255, 0.3);
   }
 
   .btn-icon {

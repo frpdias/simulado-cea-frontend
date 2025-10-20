@@ -113,7 +113,7 @@
 				</div>
 				<div class="card-arrow">→</div>
 			</a>
-			<a href="/admin" class="menu-card admin">
+			<a href="/admin-login" class="menu-card admin">
 				<div class="card-icon">⚙️</div>
 				<div class="card-content">
 					<span class="menu-card__title">Painel Admin</span>
