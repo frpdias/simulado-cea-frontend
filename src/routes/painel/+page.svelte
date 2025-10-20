@@ -469,7 +469,6 @@
           </div>
           <div class="action-buttons">
             <span class={`status-pill ${statusClass}`}>
-              <div class="status-indicator"></div>
               Status: {statusTexto}
             </span>
             {#if ehAdmin}
@@ -492,28 +491,24 @@
 
       <div class="hero-stats">
         <div class="stat-card">
-          <div class="stat-icon">📊</div>
           <div class="stat-content">
             <span class="stat-value">{totalSimulados}</span>
             <span class="stat-label">Simulados</span>
           </div>
         </div>
         <div class="stat-card">
-          <div class="stat-icon">❓</div>
           <div class="stat-content">
             <span class="stat-value">{totalQuestoes}</span>
             <span class="stat-label">Questões</span>
           </div>
         </div>
         <div class="stat-card">
-          <div class="stat-icon">🎯</div>
           <div class="stat-content">
             <span class="stat-value">{totalTemas}</span>
             <span class="stat-label">Temas</span>
           </div>
         </div>
         <div class="stat-card">
-          <div class="stat-icon">⚡</div>
           <div class="stat-content">
             <span class="stat-value">{aproveitamentoGeral !== null ? `${aproveitamentoGeral}%` : '--'}</span>
             <span class="stat-label">Aproveitamento</span>
@@ -553,7 +548,6 @@
         </div>
       {:else if aproveitamentoGeral === null}
         <div class="empty-state">
-          <div class="empty-icon">📊</div>
           <h3>Nenhum resultado ainda</h3>
           <p>Complete um simulado para visualizar seu desempenho aqui.</p>
           <button class="btn-primary" on:click={() => goto('/simulados')}>
@@ -644,7 +638,6 @@
                 {#if temaReforcar && temaReforcar !== melhorTema}
                   <div class="insight-card needs-attention">
                     <div class="insight-header">
-                      <div class="insight-icon">🎯</div>
                       <div class="insight-meta">
                         <div class="insight-title">Foco para Revisão</div>
                         <div class="insight-percentage">{temaReforcar.percentual}%</div>
@@ -669,12 +662,12 @@
                 Iniciar novo simulado
               </button>
               <button class="btn-secondary large" on:click={() => goto('/painel?historico=1')}>
-                <span class="btn-icon">📊</span>
+                <span class="btn-icon"></span>
                 Ver histórico completo
               </button>
               {#if ehAdmin}
                 <button class="btn-admin large" on:click={() => goto('/admin')}>
-                  <span class="btn-icon">⚙️</span>
+                  <span class="btn-icon"></span>
                   Painel de Administração
                 </button>
               {/if}
@@ -691,7 +684,7 @@
         <header class="section-header">
           <div class="section-title-group">
             <h2 class="section-title">
-              <span class="section-icon">📊</span>
+              <span class="section-icon"></span>
               Simulados por número
             </h2>
             <p class="section-subtitle">Escolha um simulado para praticar</p>
@@ -748,7 +741,7 @@
         <header class="section-header">
           <div class="section-title-group">
             <h2 class="section-title">
-              <span class="section-icon">🎯</span>
+              <span class="section-icon"></span>
               Filtrar por tema
             </h2>
             <p class="section-subtitle">Pratique por assunto específico</p>
@@ -1148,6 +1141,10 @@
   .stat-icon {
     font-size: clamp(1.2rem, 2.5vw, 1.6rem);
     filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3));
+  }
+
+  .stat-icon:empty {
+    display: none;
   }
 
   .stat-content {
@@ -1673,6 +1670,10 @@
     flex-shrink: 0;
   }
 
+  .insight-icon:empty {
+    display: none;
+  }
+
   .insight-meta {
     flex: 1;
     display: flex;
@@ -1830,6 +1831,10 @@
     font-size: 1rem;
   }
 
+  .btn-icon:empty {
+    display: none;
+  }
+
   /* ==============================================
      LOADING & ERROR STATES
   ============================================== */
@@ -1885,6 +1890,11 @@
   .error-icon, .empty-icon {
     font-size: 3rem;
     margin-bottom: 1rem;
+  }
+
+  .error-icon:empty, .empty-icon:empty {
+    display: none;
+    margin-bottom: 0;
   }
 
   .empty-state h3 {
@@ -2426,6 +2436,10 @@
   .section-icon {
     font-size: clamp(1.2rem, 2.4vw, 1.4rem);
     filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3));
+  }
+
+  .section-icon:empty {
+    display: none;
   }
 
   .section-subtitle {
