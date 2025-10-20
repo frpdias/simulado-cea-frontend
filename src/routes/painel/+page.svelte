@@ -461,7 +461,7 @@
           </div>
         </div>
         <div class="stat-card">
-          <div class="stat-icon">📚</div>
+          <div class="stat-icon">❓</div>
           <div class="stat-content">
             <span class="stat-value">{totalQuestoes}</span>
             <span class="stat-label">Questões</span>
@@ -485,41 +485,50 @@
     </section>
   </header>
 
-  <main>
-    <section class="card desempenho">
-      <div class="desempenho-header">
-        <h2>Seu aproveitamento</h2>
+  <main class="main-content">
+    <section class="performance-dashboard">
+      <div class="dashboard-header">
+        <div class="header-content">
+          <h2>Seu aproveitamento</h2>
+          <p>Acompanhe seu progresso e desempenho nos simulados</p>
+        </div>
         {#if carregandoDesempenho}
-          <span class="badge neutro">Carregando...</span>
+          <span class="badge loading">Carregando...</span>
         {:else if erroDesempenho}
-          <span class="badge erro">{erroDesempenho}</span>
+          <span class="badge error">{erroDesempenho}</span>
         {/if}
       </div>
 
       {#if carregandoDesempenho}
-        <div class="desempenho-skeleton">
-          <div class="skeleton redondo"></div>
-          <div class="skeleton barra"></div>
+        <div class="performance-skeleton">
+          <div class="skeleton-ring"></div>
+          <div class="skeleton-stats">
+            <div class="skeleton-bar"></div>
+            <div class="skeleton-bar"></div>
+            <div class="skeleton-bar"></div>
+          </div>
         </div>
       {:else if erroDesempenho}
-        <p class="erro">{erroDesempenho}</p>
+        <div class="error-state">
+          <div class="error-icon">⚠️</div>
+          <p>{erroDesempenho}</p>
+        </div>
       {:else if aproveitamentoGeral === null}
-        <p class="vazio">
-          Nenhum resultado registrado ainda. Finalize um simulado para visualizar seu desempenho.
-        </p>
+        <div class="empty-state">
+          <div class="empty-icon">📊</div>
+          <h3>Nenhum resultado ainda</h3>
+          <p>Complete um simulado para visualizar seu desempenho aqui.</p>
+          <button class="btn-primary" on:click={() => goto('/simulados')}>
+            Iniciar primeiro simulado
+          </button>
+        </div>
       {:else}
-        <div class="desempenho-horizontal-card">
-          <!-- Layout horizontal completo -->
-          <div class="dashboard-horizontal">
-            <!-- Seção principal com ring e título -->
-            <div class="dashboard-main">
-              <div class="dashboard-header">
-                <div class="header-text">
-                  <span class="aproveitamento-kicker">Painel de progresso</span>
-                  <h3>{nomePrincipal ? `${nomePrincipal.split(' ')[0]}, continue acelerando!` : 'Seu progresso atualizado'}</h3>
-                  <p>Consolidado com base nos simulados finalizados recentemente.</p>
-                </div>
-                <div class="ring-compact" role="img" aria-label={`Aproveitamento de ${aproveitamentoGeral}%`}>
+        <div class="performance-grid-new">
+          <!-- Left Column: Progress Ring and Stats Below -->
+          <div class="performance-main-new">
+            <div class="progress-section">
+              <div class="progress-ring-container">
+                <div class="progress-ring" role="img" aria-label={`Aproveitamento de ${aproveitamentoGeral}%`}>
                   <svg viewBox="0 0 120 120">
                     <defs>
                       <linearGradient id="ring-gradient" x1="0%" y1="0%" x2="100%" y2="100%">
@@ -533,94 +542,102 @@
                     </defs>
                     <circle class="ring-track" cx="60" cy="60" r="45" />
                     <circle
-                      class={`ring-progress ${aproveitamentoGeral !== null && aproveitamentoGeral >= 70 ? 'positivo' : ''}`}
+                      class={`ring-progress ${aproveitamentoGeral >= 70 ? 'excellent' : aproveitamentoGeral >= 50 ? 'good' : 'needs-improvement'}`}
                       cx="60"
                       cy="60"
                       r="45"
                       stroke-dasharray={2 * Math.PI * 45}
-                      stroke-dashoffset={
-                        aproveitamentoGeral !== null
-                          ? 2 * Math.PI * 45 - (aproveitamentoGeral / 100) * 2 * Math.PI * 45
-                          : 2 * Math.PI * 45
-                      }
+                      stroke-dashoffset={2 * Math.PI * 45 - (aproveitamentoGeral / 100) * 2 * Math.PI * 45}
                     />
                   </svg>
-                  <div class="ring-value">
-                    <strong>{aproveitamentoGeral}%</strong>
-                    <span>Aproveitamento</span>
+                  <div class="ring-content">
+                    <div class="ring-percentage">{aproveitamentoGeral}%</div>
+                    <div class="ring-label">Aproveitamento</div>
+                    <div class="ring-sublabel">{simuladosResumo.length} simulado(s)</div>
                   </div>
                 </div>
               </div>
             </div>
 
-            <!-- Stats em linha horizontal -->
-            <div class="stats-horizontal">
-              <div class="stat-card-horizontal">
-                <div class="stat-icon success">✓</div>
-                <div class="stat-info">
-                  <strong>{desempenhoTotalAcertos}</strong>
-                  <span>Acertos</span>
-                  <small>Média {mediaAcertos} por simulado</small>
-                </div>
+            <!-- Small Stats Cards Below Ring -->
+            <div class="small-stats-grid">
+              <div class="small-stat-card success">
+                <div class="small-stat-icon">✅</div>
+                <div class="small-stat-number">{desempenhoTotalAcertos}</div>
+                <div class="small-stat-label">Acertos</div>
               </div>
-              
-              <div class="stat-card-horizontal">
-                <div class="stat-icon neutral">?</div>
-                <div class="stat-info">
-                  <strong>{desempenhoTotalQuestoes}</strong>
-                  <span>Questões</span>
-                  <small>Média {mediaQuestoes} por simulado</small>
-                </div>
-              </div>
-              
-              <div class="stat-card-horizontal error">
-                <div class="stat-icon error">✗</div>
-                <div class="stat-info">
-                  <strong>{taxaErro}%</strong>
-                  <span>Taxa de erro</span>
-                  <small>{desempenhoTotalQuestoes - desempenhoTotalAcertos} incorretas</small>
-                </div>
-              </div>
-            </div>
 
-            <!-- Performance insights -->
-            <div class="insights-horizontal">
-              {#if melhorTema}
-                <div class="insight-card positive">
-                  <div class="insight-header">
-                    <span class="insight-label">🎯 Melhor desempenho</span>
-                    <div class="progress-mini">
-                      <span style={`width: ${melhorTema.percentual}%`}></span>
-                    </div>
-                  </div>
-                  <strong>{melhorTema.tema}</strong>
-                  <small>{melhorTema.percentual}% de acerto</small>
-                </div>
-              {/if}
+              <div class="small-stat-card neutral">
+                <div class="small-stat-icon">📝</div>
+                <div class="small-stat-number">{desempenhoTotalQuestoes}</div>
+                <div class="small-stat-label">Questões</div>
+              </div>
 
-              {#if temaReforcar && temaReforcar !== melhorTema}
-                <div class="insight-card alert">
-                  <div class="insight-header">
-                    <span class="insight-label">📚 Foco para revisão</span>
-                    <div class="progress-mini">
-                      <span style={`width: ${temaReforcar.percentual}%`}></span>
-                    </div>
-                  </div>
-                  <strong>{temaReforcar.tema}</strong>
-                  <small>{temaReforcar.percentual}% de acerto</small>
-                </div>
-              {/if}
+              <div class="small-stat-card warning">
+                <div class="small-stat-icon">❌</div>
+                <div class="small-stat-number">{taxaErro}%</div>
+                <div class="small-stat-label">Taxa de erro</div>
+              </div>
             </div>
           </div>
 
-          <!-- Ações -->
-          <div class="actions-horizontal">
-            <button type="button" class="btn-primary" on:click={() => goto('/simulados')}>
-              Iniciar novo simulado
-            </button>
-            <button type="button" class="btn-secondary" on:click={() => goto('/painel?historico=1')}>
-              Visualizar histórico
-            </button>
+          <!-- Right Column: Insights and Actions -->
+          <div class="performance-sidebar">
+            <!-- Performance Insights -->
+            <div class="insights-section">
+              <h3>Insights de Performance</h3>
+              <div class="insights-container">
+                <div class="insights-grid-vertical">
+                {#if melhorTema}
+                  <div class="insight-card best-performance">
+                    <div class="insight-header">
+                      <div class="insight-icon">�</div>
+                      <div class="insight-meta">
+                        <div class="insight-title">Melhor Desempenho</div>
+                        <div class="insight-percentage">{melhorTema.percentual}%</div>
+                      </div>
+                    </div>
+                    <div class="insight-content">
+                      <div class="insight-subject">{melhorTema.tema}</div>
+                      <div class="progress-bar">
+                        <div class="progress-fill" style="width: {melhorTema.percentual}%"></div>
+                      </div>
+                    </div>
+                  </div>
+                {/if}
+
+                {#if temaReforcar && temaReforcar !== melhorTema}
+                  <div class="insight-card needs-attention">
+                    <div class="insight-header">
+                      <div class="insight-icon">🎯</div>
+                      <div class="insight-meta">
+                        <div class="insight-title">Foco para Revisão</div>
+                        <div class="insight-percentage">{temaReforcar.percentual}%</div>
+                      </div>
+                    </div>
+                    <div class="insight-content">
+                      <div class="insight-subject">{temaReforcar.tema}</div>
+                      <div class="progress-bar">
+                        <div class="progress-fill warning" style="width: {temaReforcar.percentual}%"></div>
+                      </div>
+                    </div>
+                  </div>
+                {/if}
+                </div>
+              </div>
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="performance-actions">
+              <button class="btn-primary large" on:click={() => goto('/simulados')}>
+                <span class="btn-icon">🚀</span>
+                Iniciar novo simulado
+              </button>
+              <button class="btn-secondary large" on:click={() => goto('/painel?historico=1')}>
+                <span class="btn-icon">📊</span>
+                Ver histórico completo
+              </button>
+            </div>
           </div>
         </div>
       {/if}
@@ -732,12 +749,8 @@
                   <div class="tema-content">
                     <h3 class="tema-title">{tema.tema}</h3>
                     <div class="tema-info">
-                      {#if tema.disponivel}
-                        <span class="tema-questoes">{tema.totalQuestoes || 0} questões</span>
-                        <span class="status-indicator disponivel"></span>
-                      {:else}
+                      {#if !tema.disponivel}
                         <span class="status-text indisponivel">Em breve</span>
-                        <span class="status-indicator indisponivel"></span>
                       {/if}
                     </div>
                   </div>
@@ -1150,271 +1163,651 @@
     flex-wrap: wrap;
   }
 
-  .desempenho-horizontal-card {
+  /* ==============================================
+     MAIN CONTENT & LAYOUT
+  ============================================== */
+  .main-content {
+    width: 100%;
+    margin-top: clamp(1.5rem, 3vw, 2rem);
+  }
+
+  .performance-dashboard {
     background: 
-      radial-gradient(circle at 10% 10%, rgba(99, 102, 241, 0.3), transparent 55%),
-      radial-gradient(circle at 90% 10%, rgba(20, 184, 166, 0.2), transparent 60%),
+      linear-gradient(135deg, rgba(99, 102, 241, 0.05) 0%, rgba(168, 85, 247, 0.03) 100%),
       rgba(15, 23, 42, 0.95);
-    border-radius: clamp(1.5rem, 3vw, 2rem);
-    border: 1px solid rgba(255, 255, 255, 0.15);
-    box-shadow: 
-      0 25px 50px rgba(0, 0, 0, 0.25),
-      inset 0 1px 0 rgba(255, 255, 255, 0.1);
-    padding: clamp(1.5rem, 3vw, 2rem);
     backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: clamp(1.5rem, 3vw, 2rem);
+    padding: clamp(2rem, 4vw, 3rem);
+    box-shadow: 
+      0 32px 64px rgba(0, 0, 0, 0.25),
+      inset 0 1px 0 rgba(255, 255, 255, 0.1);
     position: relative;
     overflow: hidden;
   }
 
-  .dashboard-horizontal {
-    display: grid;
-    grid-template-columns: 2fr 1fr;
-    gap: clamp(1.5rem, 3vw, 2rem);
-    align-items: start;
+  .performance-dashboard::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent);
   }
 
-  .dashboard-main {
-    display: flex;
-    flex-direction: column;
-    gap: 1rem;
-  }
-
+  /* ==============================================
+     DASHBOARD HEADER
+  ============================================== */
   .dashboard-header {
     display: flex;
-    align-items: center;
-    gap: clamp(1.5rem, 3vw, 2rem);
+    align-items: flex-start;
+    justify-content: space-between;
+    margin-bottom: clamp(2rem, 4vw, 3rem);
+    gap: 2rem;
   }
 
-  .header-text {
-    flex: 1;
-  }
-
-  .header-text .aproveitamento-kicker {
-    font-size: clamp(0.7rem, 1.4vw, 0.8rem);
-    text-transform: uppercase;
-    letter-spacing: 0.2em;
-    color: rgba(148, 163, 184, 0.75);
-    font-weight: 600;
-    display: block;
-    margin-bottom: 0.5rem;
-  }
-
-  .header-text h3 {
+  .header-content h2 {
     margin: 0 0 0.5rem 0;
-    font-size: clamp(1.2rem, 2.5vw, 1.6rem);
+    font-size: clamp(1.75rem, 3.5vw, 2.25rem);
+    font-weight: 800;
     color: var(--text-primary);
-    font-weight: 700;
-    line-height: 1.2;
+    background: linear-gradient(135deg, #f8fafc, #e2e8f0);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
   }
 
-  .header-text p {
+  .header-content p {
     margin: 0;
-    color: rgba(203, 213, 225, 0.8);
-    font-size: clamp(0.8rem, 1.6vw, 0.9rem);
-    line-height: 1.5;
+    font-size: clamp(0.9rem, 1.8vw, 1.1rem);
+    color: var(--text-muted);
+    line-height: 1.6;
   }
 
-  .ring-compact {
+  .badge {
+    padding: 0.5rem 1rem;
+    border-radius: 999px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+
+  .badge.loading {
+    background: rgba(59, 130, 246, 0.15);
+    color: #60a5fa;
+    border: 1px solid rgba(59, 130, 246, 0.3);
+  }
+
+  .badge.error {
+    background: rgba(239, 68, 68, 0.15);
+    color: #f87171;
+    border: 1px solid rgba(239, 68, 68, 0.3);
+  }
+
+  /* ==============================================
+     PERFORMANCE GRID LAYOUT
+  ============================================== */
+  .performance-grid {
+    display: grid;
+    grid-template-columns: 1.2fr 1fr;
+    gap: clamp(2rem, 4vw, 3rem);
+    align-items: start;
+    margin-bottom: clamp(2rem, 4vw, 3rem);
+  }
+
+  .performance-grid-new {
+    display: grid;
+    grid-template-columns: 1fr 300px;
+    gap: clamp(2rem, 4vw, 3rem);
+    align-items: start;
+    margin-bottom: clamp(2rem, 4vw, 3rem);
+  }
+
+  .performance-main-new {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2rem;
+  }
+
+  .performance-sidebar {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+  }
+
+  /* ==============================================
+     PROGRESS RING SECTION
+  ============================================== */
+  .performance-main {
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+  }
+
+  .progress-section {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+  }
+
+  .progress-ring-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2rem;
+  }
+
+  .progress-ring {
     position: relative;
-    width: 100px;
-    height: 100px;
-    flex-shrink: 0;
+    width: clamp(200px, 28vw, 280px);
+    height: clamp(200px, 28vw, 280px);
   }
 
-  .ring-compact svg {
+  .progress-ring svg {
     width: 100%;
     height: 100%;
     transform: rotate(-90deg);
+    filter: drop-shadow(0 8px 16px rgba(0, 0, 0, 0.3));
   }
 
-  .stats-horizontal {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 1rem;
+  .ring-track {
+    fill: none;
+    stroke: rgba(30, 41, 59, 0.8);
+    stroke-width: 8;
   }
 
-  .stat-card-horizontal {
-    background: rgba(15, 23, 42, 0.8);
-    border-radius: 12px;
-    padding: 1rem;
-    border: 1px solid rgba(255, 255, 255, 0.1);
+  .ring-progress {
+    fill: none;
+    stroke-width: 8;
+    stroke-linecap: round;
+    transition: stroke-dashoffset 1s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .ring-progress.excellent {
+    stroke: url(#ring-gradient-positive);
+  }
+
+  .ring-progress.good {
+    stroke: url(#ring-gradient);
+  }
+
+  .ring-progress.needs-improvement {
+    stroke: linear-gradient(135deg, #f59e0b, #f97316);
+  }
+
+  .ring-content {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 0.25rem;
+  }
+
+  .ring-percentage {
+    font-size: clamp(2.5rem, 5vw, 3.2rem);
+    font-weight: 900;
+    color: var(--text-primary);
+    line-height: 1;
+    text-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+  }
+
+  .ring-label {
+    font-size: clamp(0.9rem, 1.8vw, 1.1rem);
+    font-weight: 600;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+  }
+
+  .ring-sublabel {
+    font-size: clamp(0.8rem, 1.6vw, 0.95rem);
+    color: rgba(148, 163, 184, 0.7);
+  }
+
+  /* ==============================================
+     PERFORMANCE STATUS
+  ============================================== */
+  .performance-status {
+    width: 100%;
+  }
+
+  .status-indicator {
     display: flex;
     align-items: center;
-    gap: 0.75rem;
+    gap: 1rem;
+    padding: 1.5rem;
+    border-radius: 1rem;
+    border: 1px solid rgba(255, 255, 255, 0.1);
     transition: all 0.3s ease;
   }
 
-  .stat-card-horizontal:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+  .status-indicator.excellent {
+    background: linear-gradient(135deg, rgba(34, 197, 94, 0.1), rgba(52, 211, 153, 0.05));
+    border-color: rgba(34, 197, 94, 0.3);
   }
 
-  .stat-card-horizontal.error {
-    border-color: rgba(239, 68, 68, 0.3);
+  .status-indicator.good {
+    background: linear-gradient(135deg, rgba(59, 130, 246, 0.1), rgba(99, 102, 241, 0.05));
+    border-color: rgba(59, 130, 246, 0.3);
   }
 
-  .stat-icon {
-    width: 32px;
-    height: 32px;
-    border-radius: 8px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-weight: bold;
-    color: white;
+  .status-indicator.needs-improvement {
+    background: linear-gradient(135deg, rgba(245, 158, 11, 0.1), rgba(249, 115, 22, 0.05));
+    border-color: rgba(245, 158, 11, 0.3);
+  }
+
+  .status-icon {
+    font-size: 1.5rem;
     flex-shrink: 0;
   }
 
-  .stat-icon.success {
-    background: linear-gradient(135deg, #34d399, #14b8a6);
+  .status-text {
+    flex: 1;
   }
 
-  .stat-icon.neutral {
-    background: linear-gradient(135deg, #38bdf8, #6366f1);
+  .status-title {
+    font-size: 1rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin-bottom: 0.25rem;
   }
 
-  .stat-icon.error {
-    background: linear-gradient(135deg, #ef4444, #dc2626);
+  .status-subtitle {
+    font-size: 0.85rem;
+    color: var(--text-muted);
+    line-height: 1.4;
   }
 
-  .stat-info {
+  /* ==============================================
+     STATISTICS SECTION
+  ============================================== */
+  .performance-stats {
     display: flex;
     flex-direction: column;
-    gap: 0.1rem;
+    gap: 2rem;
   }
 
-  .stat-info strong {
-    font-size: 1.1rem;
+  .stats-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+
+  .stat-item {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 1.25rem;
+    background: rgba(15, 23, 42, 0.8);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 1rem;
+    transition: all 0.3s ease;
+  }
+
+  .stat-item:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+  }
+
+  .stat-item.success {
+    border-left: 4px solid #22c55e;
+  }
+
+  .stat-item.neutral {
+    border-left: 4px solid #3b82f6;
+  }
+
+  .stat-item.warning {
+    border-left: 4px solid #f59e0b;
+  }
+
+  .stat-icon {
+    font-size: 1.25rem;
+    flex-shrink: 0;
+  }
+
+  .stat-content {
+    flex: 1;
+  }
+
+  .stat-number {
+    font-size: 1.5rem;
+    font-weight: 800;
     color: var(--text-primary);
-    font-weight: 700;
     line-height: 1;
+    margin-bottom: 0.25rem;
   }
 
-  .stat-info span {
-    font-size: 0.75rem;
+  .stat-label {
+    font-size: 0.8rem;
+    font-weight: 600;
     color: var(--text-muted);
     text-transform: uppercase;
     letter-spacing: 0.05em;
-    font-weight: 600;
+    margin-bottom: 0.25rem;
   }
 
-  .stat-info small {
-    font-size: 0.7rem;
-    color: rgba(148, 163, 184, 0.75);
+  .stat-detail {
+    font-size: 0.75rem;
+    color: rgba(148, 163, 184, 0.8);
   }
 
-  .insights-horizontal {
+  /* ==============================================
+     SMALL STATS CARDS
+  ============================================== */
+  .small-stats-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1rem;
+    width: 100%;
+    max-width: 500px;
+  }
+
+  .small-stat-card {
+    padding: 1rem;
+    border-radius: 0.75rem;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    background: rgba(15, 23, 42, 0.6);
+    backdrop-filter: blur(10px);
     display: flex;
     flex-direction: column;
-    gap: 0.75rem;
+    align-items: center;
+    text-align: center;
+    gap: 0.5rem;
+    transition: all 0.3s ease;
+  }
+
+  .small-stat-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+  }
+
+  .small-stat-card.success {
+    border-left: 3px solid #34d399;
+  }
+
+  .small-stat-card.neutral {
+    border-left: 3px solid #38bdf8;
+  }
+
+  .small-stat-card.warning {
+    border-left: 3px solid #f97316;
+  }
+
+  .small-stat-icon {
+    font-size: 1.5rem;
+  }
+
+  .small-stat-number {
+    font-size: 1.25rem;
+    font-weight: 800;
+    color: var(--text-primary);
+    line-height: 1;
+  }
+
+  .small-stat-label {
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+
+  /* ==============================================
+     INSIGHTS SECTION
+  ============================================== */
+  .insights-section {
+    margin-top: 1rem;
+  }
+
+  .insights-section h3 {
+    margin: 0 0 1rem 0;
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: var(--text-primary);
+  }
+
+  .insights-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+  }
+
+  .insights-container {
+    width: 100%;
+    max-width: 100%;
+  }
+
+  .insights-grid-horizontal {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.5rem;
+    width: 100%;
   }
 
   .insight-card {
-    background: rgba(15, 23, 42, 0.8);
-    border-radius: 10px;
-    padding: 0.75rem;
+    padding: 1.25rem;
+    border-radius: 1rem;
     border: 1px solid rgba(255, 255, 255, 0.1);
-    display: flex;
-    flex-direction: column;
-    gap: 0.4rem;
+    transition: all 0.3s ease;
   }
 
-  .insight-card.positive {
+  .insight-card:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.2);
+  }
+
+  .insight-card.best-performance {
+    background: linear-gradient(135deg, rgba(34, 197, 94, 0.1), rgba(52, 211, 153, 0.05));
     border-color: rgba(34, 197, 94, 0.3);
-    background: rgba(34, 197, 94, 0.05);
   }
 
-  .insight-card.alert {
-    border-color: rgba(249, 115, 22, 0.3);
-    background: rgba(249, 115, 22, 0.05);
+  .insight-card.needs-attention {
+    background: linear-gradient(135deg, rgba(245, 158, 11, 0.1), rgba(249, 115, 22, 0.05));
+    border-color: rgba(245, 158, 11, 0.3);
   }
 
   .insight-header {
     display: flex;
-    justify-content: space-between;
     align-items: center;
-    gap: 0.5rem;
+    gap: 0.75rem;
+    margin-bottom: 0.75rem;
   }
 
-  .insight-label {
-    font-size: 0.65rem;
+  .insight-icon {
+    font-size: 1.1rem;
+    flex-shrink: 0;
+  }
+
+  .insight-meta {
+    flex: 1;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .insight-title {
+    font-size: 0.8rem;
+    font-weight: 600;
     color: var(--text-muted);
     text-transform: uppercase;
     letter-spacing: 0.05em;
-    font-weight: 600;
   }
 
-  .progress-mini {
-    width: 30px;
-    height: 3px;
+  .insight-percentage {
+    font-size: 0.9rem;
+    font-weight: 700;
+    color: var(--text-primary);
+  }
+
+  .insight-content {
+    margin-top: 0.5rem;
+  }
+
+  .insight-subject {
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin-bottom: 0.5rem;
+    line-height: 1.3;
+  }
+
+  .progress-bar {
+    width: 100%;
+    height: 4px;
     background: rgba(255, 255, 255, 0.1);
     border-radius: 2px;
     overflow: hidden;
   }
 
-  .progress-mini span {
-    display: block;
+  .progress-fill {
     height: 100%;
-    background: linear-gradient(135deg, #34d399, #14b8a6);
-    transition: width 0.6s ease;
+    background: linear-gradient(135deg, #22c55e, #16a34a);
+    border-radius: 2px;
+    transition: width 0.8s cubic-bezier(0.4, 0, 0.2, 1);
   }
 
-  .insight-card.alert .progress-mini span {
-    background: linear-gradient(135deg, #f97316, #ea580c);
+  .progress-fill.warning {
+    background: linear-gradient(135deg, #f59e0b, #f97316);
   }
 
-  .insight-card strong {
-    font-size: 0.8rem;
-    color: var(--text-primary);
-    font-weight: 600;
-    line-height: 1.3;
-  }
-
-  .insight-card small {
-    font-size: 0.7rem;
-    color: rgba(148, 163, 184, 0.75);
-  }
-
-  .actions-horizontal {
+  /* ==============================================
+     ACTION BUTTONS
+  ============================================== */
+  .performance-actions {
     display: flex;
     gap: 1rem;
-    margin-top: 1rem;
-    flex-wrap: wrap;
+    flex-wrap: nowrap;
+    align-items: center;
   }
 
   .btn-primary, .btn-secondary {
-    padding: 0.75rem 1.5rem;
-    border-radius: 12px;
-    border: none;
-    font-weight: 600;
-    font-size: 0.85rem;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    text-decoration: none;
     display: inline-flex;
     align-items: center;
     justify-content: center;
+    gap: 0.5rem;
+    padding: 0.875rem 1.5rem;
+    border-radius: 0.75rem;
+    font-weight: 600;
+    font-size: 0.9rem;
+    transition: all 0.3s ease;
+    cursor: pointer;
+    border: none;
+    text-decoration: none;
+    position: relative;
+    overflow: hidden;
+    flex: 1;
+    min-width: 0;
+  }
+
+  .btn-primary.large, .btn-secondary.large {
+    padding: 1rem 2rem;
+    font-size: 1rem;
   }
 
   .btn-primary {
     background: linear-gradient(135deg, var(--brand-primary), var(--brand-secondary));
     color: white;
+    box-shadow: 0 4px 12px rgba(29, 78, 216, 0.3);
   }
 
   .btn-primary:hover {
-    transform: translateY(-1px);
-    box-shadow: 0 8px 16px rgba(99, 102, 241, 0.3);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(29, 78, 216, 0.4);
   }
 
   .btn-secondary {
-    background: rgba(255, 255, 255, 0.1);
+    background: rgba(255, 255, 255, 0.05);
     color: var(--text-primary);
     border: 1px solid rgba(255, 255, 255, 0.2);
+    backdrop-filter: blur(10px);
   }
 
   .btn-secondary:hover {
-    background: rgba(255, 255, 255, 0.15);
+    background: rgba(255, 255, 255, 0.1);
     transform: translateY(-1px);
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.2);
+  }
+
+  .btn-icon {
+    font-size: 1rem;
+  }
+
+  /* ==============================================
+     LOADING & ERROR STATES
+  ============================================== */
+  .performance-skeleton {
+    display: flex;
+    align-items: center;
+    gap: 3rem;
+    padding: 3rem 0;
+  }
+
+  .skeleton-ring {
+    width: 140px;
+    height: 140px;
+    border-radius: 50%;
+    background: linear-gradient(90deg, rgba(30, 41, 59, 0.8) 25%, rgba(51, 65, 85, 0.8) 50%, rgba(30, 41, 59, 0.8) 75%);
+    background-size: 200% 100%;
+    animation: shimmer 1.5s infinite;
+  }
+
+  .skeleton-stats {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+  }
+
+  .skeleton-bar {
+    height: 60px;
+    border-radius: 0.5rem;
+    background: linear-gradient(90deg, rgba(30, 41, 59, 0.8) 25%, rgba(51, 65, 85, 0.8) 50%, rgba(30, 41, 59, 0.8) 75%);
+    background-size: 200% 100%;
+    animation: shimmer 1.5s infinite;
+  }
+
+  .skeleton-bar:nth-child(2) {
+    animation-delay: 0.2s;
+  }
+
+  .skeleton-bar:nth-child(3) {
+    animation-delay: 0.4s;
+  }
+
+  @keyframes shimmer {
+    0% { background-position: 200% 0; }
+    100% { background-position: -200% 0; }
+  }
+
+  .error-state, .empty-state {
+    text-align: center;
+    padding: 4rem 2rem;
+  }
+
+  .error-icon, .empty-icon {
+    font-size: 3rem;
+    margin-bottom: 1rem;
+  }
+
+  .empty-state h3 {
+    margin: 0 0 0.5rem 0;
+    font-size: 1.25rem;
+    color: var(--text-primary);
+  }
+
+  .empty-state p {
+    margin: 0 0 2rem 0;
+    color: var(--text-muted);
+    max-width: 24rem;
+    margin-left: auto;
+    margin-right: auto;
   }
 
   .desempenho-skeleton {
@@ -2238,21 +2631,215 @@
   }
 
   /* Responsive Design */
+  /* ==============================================
+     RESPONSIVE DESIGN
+  ============================================== */
   @media (max-width: 1200px) {
-    .dashboard-horizontal {
+    .performance-grid {
       grid-template-columns: 1fr;
-      gap: 1.5rem;
+      gap: 2rem;
     }
 
+    .performance-main {
+      order: 1;
+    }
+
+    .performance-stats {
+      order: 2;
+    }
+
+    .progress-section {
+      flex-direction: row;
+      justify-content: space-between;
+      align-items: center;
+      text-align: left;
+    }
+
+    .progress-ring-container {
+      flex-direction: row;
+      align-items: center;
+      gap: 2rem;
+    }
+
+    .performance-status {
+      flex: 1;
+    }
+
+    /* New layout responsive */
+    .performance-grid-new {
+      grid-template-columns: 1fr;
+      gap: 2rem;
+    }
+
+    .performance-sidebar {
+      flex-direction: row;
+      gap: 2rem;
+    }
+
+    .insights-grid-vertical {
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    }
+
+    .actions-container {
+      display: flex;
+      gap: 1rem;
+    }
+  }
+
+  @media (max-width: 900px) {
     .dashboard-header {
       flex-direction: column;
       align-items: flex-start;
       gap: 1rem;
     }
 
-    .stats-horizontal {
+    .performance-dashboard {
+      padding: clamp(1.5rem, 3vw, 2rem);
+    }
+
+    .progress-section {
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+    }
+
+    .progress-ring-container {
+      flex-direction: column;
+      gap: 1.5rem;
+    }
+
+    .performance-actions {
+      flex-direction: column;
+    }
+
+    .btn-primary.large, .btn-secondary.large {
+      width: 100%;
+      justify-content: center;
+    }
+
+    /* New layout responsive - mobile */
+    .small-stats-grid {
       grid-template-columns: 1fr;
+      gap: 1rem;
+      max-width: 300px;
+    }
+
+    .performance-sidebar {
+      flex-direction: column;
+    }
+
+    .insights-grid-vertical {
+      grid-template-columns: 1fr;
+      gap: 1rem;
+    }
+
+    .actions-container {
+      flex-direction: column;
+    }
+  }
+
+  @media (max-width: 600px) {
+    .performance-dashboard {
+      padding: 1.5rem 1rem;
+      margin: 0 -1rem;
+      border-radius: 0;
+    }
+
+    .dashboard-header {
+      margin-bottom: 1.5rem;
+    }
+
+    .performance-grid {
+      gap: 1.5rem;
+    }
+
+    .progress-ring {
+      width: 160px;
+      height: 160px;
+    }
+
+    .ring-percentage {
+      font-size: 2.1rem;
+    }
+
+    .stats-grid {
       gap: 0.75rem;
+    }
+
+    .stat-item {
+      padding: 1rem;
+    }
+
+    .insights-grid {
+      gap: 0.75rem;
+    }
+
+    .insights-grid-horizontal {
+      grid-template-columns: 1fr;
+      gap: 1rem;
+    }
+
+    .insight-card {
+      padding: 1rem;
+    }
+
+    .performance-actions {
+      gap: 0.75rem;
+      flex-wrap: wrap;
+    }
+
+    .btn-primary, .btn-secondary {
+      flex: none;
+      min-width: 120px;
+    }
+  }
+
+  @media (max-width: 480px) {
+    .header-content h2 {
+      font-size: 1.5rem;
+    }
+
+    .progress-ring {
+      width: 140px;
+      height: 140px;
+    }
+
+    .ring-percentage {
+      font-size: 1.8rem;
+    }
+
+    /* New layout responsive - very small screens */
+    .small-stats-grid {
+      max-width: 250px;
+    }
+
+    .small-stat-card {
+      padding: 0.75rem;
+    }
+
+    .small-stat-icon {
+      font-size: 1.25rem;
+    }
+
+    .small-stat-number {
+      font-size: 1rem;
+    }
+
+    .small-stat-label {
+      font-size: 0.625rem;
+    }
+
+    .stat-number {
+      font-size: 1.25rem;
+    }
+
+    .performance-actions {
+      margin-top: 1.5rem;
+    }
+
+    .btn-primary.large, .btn-secondary.large {
+      padding: 0.875rem 1.5rem;
+      font-size: 0.9rem;
     }
   }
 

@@ -223,7 +223,7 @@
 		animation-delay: -10s;
 	}
 
-	@keyframes :global(float) {
+	@keyframes float {
 		0%, 100% { transform: translateY(0px) rotate(0deg); }
 		25% { transform: translateY(-20px) rotate(5deg); }
 		50% { transform: translateY(10px) rotate(-5deg); }
