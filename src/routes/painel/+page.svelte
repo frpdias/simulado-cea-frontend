@@ -68,6 +68,7 @@
   let aproveitamentoGeral: number | null = null;
   let desempenhoTotalQuestoes = 0;
   let desempenhoTotalAcertos = 0;
+  let desempenhoTotalRespondidas = 0;
   let aproveitamentoTemas: { tema: string; percentual: number; acertos: number; total: number }[] =
     [];
   let simuladosCards: SimuladoCard[] = [];
@@ -198,6 +199,7 @@
     aproveitamentoGeral = null;
     desempenhoTotalAcertos = 0;
     desempenhoTotalQuestoes = 0;
+    desempenhoTotalRespondidas = 0;
     aproveitamentoTemas = [];
 
     const { data: respostasData, error: respostasError } = await supabase
@@ -277,6 +279,7 @@
 
         const registro = temasMapa.get(tema)!;
         registro.total += 1;
+        desempenhoTotalRespondidas += 1;
 
         if (
           typeof respostaMarcada === 'string' &&
@@ -351,7 +354,9 @@
     ? Math.round(desempenhoTotalQuestoes / simuladosResumo.length)
     : 0;
 
-  $: taxaErro = aproveitamentoGeral !== null ? Math.max(0, 100 - aproveitamentoGeral) : 0;
+  $: taxaErro = desempenhoTotalRespondidas > 0 
+    ? Math.max(0, Math.round(((desempenhoTotalRespondidas - desempenhoTotalAcertos) / desempenhoTotalRespondidas) * 100))
+    : 0;
 
   $: melhorTema = aproveitamentoTemas.length ? aproveitamentoTemas[0] : null;
 
@@ -567,7 +572,7 @@
               </div>
 
               <div class="small-stat-card neutral">
-                <div class="small-stat-number">{desempenhoTotalQuestoes}</div>
+                <div class="small-stat-number">{desempenhoTotalRespondidas}</div>
                 <div class="small-stat-label">Questões</div>
               </div>
 
