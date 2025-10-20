@@ -658,16 +658,36 @@
             <!-- Action Buttons -->
             <div class="performance-actions">
               <button class="btn-primary large" on:click={() => goto('/simulados')}>
-                <span class="btn-icon">🚀</span>
+                <span class="btn-icon">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M4.5 16.5c-1.5 1.5-1.5 4.5 0 6s4.5 1.5 6 0L16 17l-4-4L4.5 16.5z"/>
+                    <path d="M13.5 6.5a4.95 4.95 0 0 1 7 7l-2 2"/>
+                    <path d="M9 11l-4 4"/>
+                    <path d="M5 21l3-3"/>
+                  </svg>
+                </span>
                 Iniciar novo simulado
               </button>
               <button class="btn-secondary large" on:click={() => goto('/painel?historico=1')}>
-                <span class="btn-icon"></span>
+                <span class="btn-icon">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M3 3v5h5"/>
+                    <path d="M3.05 13A9 9 0 1 0 6 5.3L3 8"/>
+                    <path d="M12 7v5l4 2"/>
+                  </svg>
+                </span>
                 Ver histórico completo
               </button>
               {#if ehAdmin}
                 <button class="btn-admin large" on:click={() => goto('/admin')}>
-                  <span class="btn-icon"></span>
+                  <span class="btn-icon">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                      <rect x="3" y="3" width="18" height="18" rx="2"/>
+                      <path d="M9 9h6v6H9z"/>
+                      <path d="M21 14H3"/>
+                      <path d="M14 3v18"/>
+                    </svg>
+                  </span>
                   Painel de Administração
                 </button>
               {/if}
@@ -684,7 +704,15 @@
         <header class="section-header">
           <div class="section-title-group">
             <h2 class="section-title">
-              <span class="section-icon"></span>
+              <span class="section-icon">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                  <polyline points="14,2 14,8 20,8"/>
+                  <line x1="16" y1="13" x2="8" y2="13"/>
+                  <line x1="16" y1="17" x2="8" y2="17"/>
+                  <polyline points="10,9 9,9 8,9"/>
+                </svg>
+              </span>
               Simulados por número
             </h2>
             <p class="section-subtitle">Escolha um simulado para praticar</p>
@@ -741,7 +769,12 @@
         <header class="section-header">
           <div class="section-title-group">
             <h2 class="section-title">
-              <span class="section-icon"></span>
+              <span class="section-icon">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/>
+                  <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/>
+                </svg>
+              </span>
               Filtrar por tema
             </h2>
             <p class="section-subtitle">Pratique por assunto específico</p>
@@ -1667,12 +1700,37 @@
   }
 
   .insight-icon {
-    font-size: 1.1rem;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%);
+    color: white;
     flex-shrink: 0;
+    box-shadow: 
+      0 4px 12px rgba(34, 197, 94, 0.3),
+      inset 0 1px 0 rgba(255, 255, 255, 0.2);
+    transition: all 0.3s ease;
+  }
+
+  .needs-attention .insight-icon {
+    background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+    box-shadow: 
+      0 4px 12px rgba(245, 158, 11, 0.3),
+      inset 0 1px 0 rgba(255, 255, 255, 0.2);
   }
 
   .insight-icon:empty {
     display: none;
+  }
+
+  .insight-icon svg {
+    width: 16px;
+    height: 16px;
+    stroke-width: 2.5;
+    filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.2));
   }
 
   .insight-meta {
@@ -1710,21 +1768,43 @@
 
   .progress-bar {
     width: 100%;
-    height: 4px;
-    background: rgba(255, 255, 255, 0.1);
-    border-radius: 2px;
+    height: 6px;
+    background: rgba(15, 23, 42, 0.6);
+    border-radius: 3px;
     overflow: hidden;
+    position: relative;
+    box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.2);
   }
 
   .progress-fill {
     height: 100%;
-    background: linear-gradient(135deg, #22c55e, #16a34a);
-    border-radius: 2px;
+    background: linear-gradient(90deg, #22c55e 0%, #16a34a 50%, #15803d 100%);
+    border-radius: 3px;
     transition: width 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+    overflow: hidden;
+    box-shadow: 0 1px 3px rgba(34, 197, 94, 0.4);
+  }
+
+  .progress-fill::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+    animation: shimmer-progress 2.5s infinite;
+  }
+
+  @keyframes shimmer-progress {
+    0% { left: -100%; }
+    100% { left: 100%; }
   }
 
   .progress-fill.warning {
-    background: linear-gradient(135deg, #f59e0b, #f97316);
+    background: linear-gradient(90deg, #f59e0b 0%, #d97706 50%, #b45309 100%);
+    box-shadow: 0 1px 3px rgba(245, 158, 11, 0.4);
   }
 
   /* ==============================================
@@ -1759,30 +1839,62 @@
   .btn-primary.large, .btn-secondary.large {
     padding: 1rem 2rem;
     font-size: 1rem;
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+    overflow: hidden;
+  }
+
+  .btn-primary.large::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+    transition: left 0.6s ease;
+  }
+
+  .btn-primary.large:hover::before {
+    left: 100%;
   }
 
   .btn-primary {
-    background: linear-gradient(135deg, var(--brand-primary), var(--brand-secondary));
+    background: linear-gradient(135deg, #3b82f6 0%, #6366f1 50%, #8b5cf6 100%);
     color: white;
-    box-shadow: 0 4px 12px rgba(29, 78, 216, 0.3);
-  }
-
-  .btn-primary:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 8px 20px rgba(29, 78, 216, 0.4);
-  }
-
-  .btn-secondary {
-    background: rgba(255, 255, 255, 0.05);
-    color: var(--text-primary);
+    box-shadow: 
+      0 8px 25px rgba(59, 130, 246, 0.3),
+      inset 0 1px 0 rgba(255, 255, 255, 0.1);
     border: 1px solid rgba(255, 255, 255, 0.2);
     backdrop-filter: blur(10px);
   }
 
+  .btn-primary:hover {
+    transform: translateY(-3px) scale(1.02);
+    background: linear-gradient(135deg, #2563eb 0%, #4f46e5 50%, #7c3aed 100%);
+    box-shadow: 
+      0 15px 35px rgba(59, 130, 246, 0.4),
+      inset 0 1px 0 rgba(255, 255, 255, 0.2);
+  }
+
+  .btn-secondary {
+    background: linear-gradient(135deg, rgba(15, 23, 42, 0.8) 0%, rgba(30, 41, 59, 0.9) 100%);
+    color: #e2e8f0;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    backdrop-filter: blur(10px);
+    box-shadow: 
+      inset 0 1px 0 rgba(255, 255, 255, 0.1),
+      0 4px 12px rgba(0, 0, 0, 0.2);
+  }
+
   .btn-secondary:hover {
-    background: rgba(255, 255, 255, 0.1);
-    transform: translateY(-1px);
-    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.2);
+    background: linear-gradient(135deg, rgba(30, 41, 59, 0.9) 0%, rgba(51, 65, 85, 0.9) 100%);
+    color: #f1f5f9;
+    transform: translateY(-3px) scale(1.02);
+    border-color: rgba(99, 102, 241, 0.4);
+    box-shadow: 
+      inset 0 1px 0 rgba(255, 255, 255, 0.2),
+      0 8px 20px rgba(99, 102, 241, 0.3);
   }
 
   .btn-admin {
@@ -1794,7 +1906,7 @@
     border-radius: 0.75rem;
     font-weight: 600;
     font-size: 0.9rem;
-    transition: all 0.3s ease;
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
     cursor: pointer;
     border: none;
     text-decoration: none;
@@ -1802,9 +1914,13 @@
     overflow: hidden;
     flex: 1;
     min-width: 0;
-    background: linear-gradient(135deg, #7c3aed, #a855f7);
+    background: linear-gradient(135deg, #059669 0%, #047857 50%, #065f46 100%);
     color: white;
-    box-shadow: 0 4px 12px rgba(124, 58, 237, 0.3);
+    box-shadow: 
+      0 8px 25px rgba(5, 150, 105, 0.3),
+      inset 0 1px 0 rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    backdrop-filter: blur(10px);
   }
 
   .btn-admin.large {
@@ -1813,8 +1929,11 @@
   }
 
   .btn-admin:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 8px 20px rgba(124, 58, 237, 0.4);
+    transform: translateY(-3px) scale(1.02);
+    background: linear-gradient(135deg, #047857 0%, #065f46 50%, #064e3b 100%);
+    box-shadow: 
+      0 15px 35px rgba(5, 150, 105, 0.4),
+      inset 0 1px 0 rgba(255, 255, 255, 0.2);
   }
 
   .botao-admin {
@@ -2435,8 +2554,26 @@
   }
 
   .section-icon {
-    font-size: clamp(1.2rem, 2.4vw, 1.4rem);
-    filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3));
+    width: 24px;
+    height: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #3b82f6;
+    filter: drop-shadow(0 2px 4px rgba(59, 130, 246, 0.3));
+    transition: all 0.3s ease;
+  }
+
+  .section-icon svg {
+    width: 20px;
+    height: 20px;
+    stroke-width: 2;
+  }
+
+  .section-title:hover .section-icon {
+    color: #2563eb;
+    transform: scale(1.1);
+    filter: drop-shadow(0 4px 8px rgba(59, 130, 246, 0.4));
   }
 
   .section-icon:empty {
