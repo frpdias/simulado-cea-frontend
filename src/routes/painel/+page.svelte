@@ -1260,10 +1260,10 @@
       rgba(15, 23, 42, 0.95);
     backdrop-filter: blur(20px);
     border: 1px solid rgba(255, 255, 255, 0.1);
-    border-radius: clamp(1.5rem, 3vw, 2rem);
-    padding: clamp(2rem, 4vw, 3rem);
+    border-radius: clamp(1rem, 2vw, 1.5rem);
+    padding: clamp(1.25rem, 2.5vw, 1.75rem);
     box-shadow: 
-      0 32px 64px rgba(0, 0, 0, 0.25),
+      0 20px 40px rgba(0, 0, 0, 0.2),
       inset 0 1px 0 rgba(255, 255, 255, 0.1);
     position: relative;
     overflow: hidden;
@@ -1286,8 +1286,8 @@
     display: flex;
     align-items: flex-start;
     justify-content: space-between;
-    margin-bottom: clamp(2rem, 4vw, 3rem);
-    gap: 2rem;
+    margin-bottom: clamp(1.25rem, 2.5vw, 1.75rem);
+    gap: 1.5rem;
   }
 
   .header-content h2 {
@@ -1343,16 +1343,16 @@
   .performance-grid-new {
     display: grid;
     grid-template-columns: 1fr 300px;
-    gap: clamp(2rem, 4vw, 3rem);
+    gap: clamp(1.5rem, 3vw, 2rem);
     align-items: start;
-    margin-bottom: clamp(2rem, 4vw, 3rem);
+    margin-bottom: clamp(1.5rem, 3vw, 2rem);
   }
 
   .performance-main-new {
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 2rem;
+    gap: 1.5rem;
   }
 
   .performance-sidebar {
@@ -1381,13 +1381,13 @@
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 2rem;
+    gap: 1.25rem;
   }
 
   .progress-ring {
     position: relative;
-    width: clamp(200px, 28vw, 280px);
-    height: clamp(200px, 28vw, 280px);
+    width: clamp(160px, 22vw, 220px);
+    height: clamp(160px, 22vw, 220px);
   }
 
   .progress-ring svg {
@@ -1587,14 +1587,14 @@
   .small-stats-grid {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
-    gap: 1rem;
+    gap: 0.75rem;
     width: 100%;
-    max-width: 500px;
+    max-width: 420px;
   }
 
   .small-stat-card {
-    padding: 1rem;
-    border-radius: 0.75rem;
+    padding: 0.75rem;
+    border-radius: 0.625rem;
     border: 1px solid rgba(255, 255, 255, 0.1);
     background: rgba(15, 23, 42, 0.6);
     backdrop-filter: blur(10px);
@@ -1602,7 +1602,7 @@
     flex-direction: column;
     align-items: center;
     text-align: center;
-    gap: 0.5rem;
+    gap: 0.375rem;
     transition: all 0.3s ease;
   }
 
@@ -1642,12 +1642,12 @@
      INSIGHTS SECTION
   ============================================== */
   .insights-section {
-    margin-top: 1rem;
+    margin-top: 0.75rem;
   }
 
   .insights-section h3 {
-    margin: 0 0 1rem 0;
-    font-size: 1.1rem;
+    margin: 0 0 0.75rem 0;
+    font-size: 1rem;
     font-weight: 700;
     color: var(--text-primary);
   }
@@ -1655,7 +1655,7 @@
   .insights-grid {
     display: flex;
     flex-direction: column;
-    gap: 1rem;
+    gap: 0.75rem;
   }
 
   .insights-container {
@@ -1812,7 +1812,7 @@
   ============================================== */
   .performance-actions {
     display: flex;
-    gap: 1rem;
+    gap: 0.75rem;
     flex-wrap: nowrap;
     align-items: center;
   }
@@ -1822,10 +1822,10 @@
     align-items: center;
     justify-content: center;
     gap: 0.5rem;
-    padding: 0.875rem 1.5rem;
-    border-radius: 0.75rem;
+    padding: 0.675rem 1.25rem;
+    border-radius: 0.625rem;
     font-weight: 600;
-    font-size: 0.9rem;
+    font-size: 0.85rem;
     transition: all 0.3s ease;
     cursor: pointer;
     border: none;
