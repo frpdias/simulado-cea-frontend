@@ -37,33 +37,51 @@ function ehValorAdmin(valor: string) {
 
 export const load: LayoutServerLoad = async (event) => {
 	try {
+		console.log('🔍 Admin Layout - Iniciando verificação...');
+		
+		// Verificar variáveis de ambiente
+		const adminEmailsEnv = env.ADMIN_ALLOWED_EMAILS;
+		console.log('📧 Admin emails env:', adminEmailsEnv ? 'configured' : 'missing');
+		
 		const supabase = event.locals.supabase;
 		if (!supabase) {
 			console.error('❌ Supabase client não configurado');
 			throw error(500, 'Dependência de autenticação não configurada.');
 		}
 		
+		console.log('✅ Supabase client disponível');
+		
 		const session = await event.locals.getSession();
+		console.log('🔐 Sessão:', session ? 'encontrada' : 'não encontrada');
 
 		if (!session) {
 			const redirectTo = encodeURIComponent(event.url.pathname);
+			console.log('🔄 Redirecionando para login:', `/login?redirectTo=${redirectTo}`);
 			throw redirect(303, `/login?redirectTo=${redirectTo}`);
 		}
 
 		const user = session.user;
+		console.log('👤 Usuário:', user.email);
+		
 		const email = user.email?.toLowerCase() ?? '';
 
 		let autorizado = false;
 
+		// Verificação 1: Email na lista
 		if (email && adminEmails.includes(email)) {
 			autorizado = true;
+			console.log('✅ Autorizado por email');
 		}
 
+		// Verificação 2: Metadata
 		if (!autorizado && metadataIndicaAdmin(user)) {
 			autorizado = true;
+			console.log('✅ Autorizado por metadata');
 		}
 
+		// Verificação 3: Tabela usuarios
 		if (!autorizado) {
+			console.log('🔍 Verificando tabela usuarios...');
 			const { data: perfil, error: perfilError } = await supabase
 				.from('usuarios')
 				.select('perfil, papel, role, tipo, status')
@@ -71,7 +89,9 @@ export const load: LayoutServerLoad = async (event) => {
 				.maybeSingle();
 
 			if (perfilError) {
-				console.error('Erro ao verificar perfil do usuário para o admin:', perfilError);
+				console.error('❌ Erro ao verificar perfil:', perfilError);
+			} else {
+				console.log('📊 Perfil encontrado:', perfil);
 			}
 
 			const possivelPapel =
@@ -83,13 +103,17 @@ export const load: LayoutServerLoad = async (event) => {
 
 			if (possivelPapel && ehValorAdmin(possivelPapel)) {
 				autorizado = true;
+				console.log('✅ Autorizado por tabela usuarios');
 			}
 		}
 
 		if (!autorizado) {
+			console.log('❌ Acesso negado para:', email);
 			throw error(403, 'Acesso permitido apenas a administradores.');
 		}
 
+		console.log('✅ Admin layout carregado com sucesso');
+		
 		return {
 			supabase,
 			adminUser: {
@@ -102,11 +126,11 @@ export const load: LayoutServerLoad = async (event) => {
 		console.error('❌ Erro no layout admin:', err);
 		
 		// Se for um erro de redirect ou error do SvelteKit, re-throw
-		if (err instanceof Error && (err.message.includes('redirect') || err.message.includes('error'))) {
+		if (err && typeof err === 'object' && 'status' in err) {
 			throw err;
 		}
 		
 		// Para outros erros, logar e retornar erro 500
-		throw error(500, 'Erro interno do servidor');
+		throw error(500, `Erro interno do servidor: ${err}`);
 	}
 };
