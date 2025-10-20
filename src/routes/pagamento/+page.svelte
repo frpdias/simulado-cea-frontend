@@ -287,14 +287,6 @@
     content: '✅';
   }
 
-  .alert-content {
-    display: flex;
-    flex-direction: column;
-    gap: 0.25rem;
-    min-width: 0;
-    flex: 1;
-  }
-
   button {
     align-self: center;
     padding: clamp(1rem, 2vw, 1.25rem) clamp(2rem, 4vw, 3rem);
@@ -352,20 +344,6 @@
     box-shadow: 
       0 20px 40px rgba(249, 115, 22, 0.3),
       inset 0 1px 0 rgba(255, 255, 255, 0.2);
-  }
-
-  .loading-spinner {
-    width: 18px;
-    height: 18px;
-    border: 2px solid rgba(255, 255, 255, 0.3);
-    border-top: 2px solid white;
-    border-radius: 50%;
-    animation: spin 1s linear infinite;
-  }
-
-  @keyframes spin {
-    0% { transform: rotate(0deg); }
-    100% { transform: rotate(360deg); }
   }
 
   /* Mobile optimizations */
