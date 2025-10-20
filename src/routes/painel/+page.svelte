@@ -633,87 +633,126 @@
       {/if}
     </section>
 
-    <div class="simulados-paineis">
-      <section class="card simulados">
-        <div class="cabecalho seção">
-          <h2>Simulados por número</h2>
+    <!-- Seções organizadas em layout otimizado -->
+    <div class="dashboard-sections">
+      <!-- Coluna esquerda: Simulados por número -->
+      <section class="section-card simulados-section">
+        <header class="section-header">
+          <div class="section-title-group">
+            <h2 class="section-title">
+              <span class="section-icon">📊</span>
+              Simulados por número
+            </h2>
+            <p class="section-subtitle">Escolha um simulado para praticar</p>
+          </div>
           {#if carregandoSimulados}
             <span class="badge neutro">Carregando...</span>
           {:else if erroSimulados}
             <span class="badge erro">{erroSimulados}</span>
           {/if}
-        </div>
+        </header>
 
-        {#if carregandoSimulados}
-          <div class="skeleton-grid">
-            {#each Array(3) as _, index}
-              <div class="skeleton" aria-hidden="true"></div>
-            {/each}
-          </div>
-        {:else if erroSimulados}
-          <p class="erro">{erroSimulados}</p>
-        {:else}
-          <div class="simulados-grid">
-          {#each simuladosCards as simulado}
-            <button
-              type="button"
-              class="simulado-box"
-              class:indisponivel={!simulado.disponivel}
-                on:click={() => simulado.disponivel && iniciarSimulado(simulado.numero)}
-                disabled={!simulado.disponivel}
-            >
-              <div class="simulado-content">
-                <strong class="simulado-title">{simulado.numero}</strong>
-                {#if !simulado.disponivel}
-                  <span class="simulado-foot indisponivel">Em breve</span>
-                {/if}
-                </div>
-              </button>
-            {/each}
-          </div>
-        {/if}
+        <div class="section-content">
+          {#if carregandoSimulados}
+            <div class="skeleton-grid">
+              {#each Array(6) as _, index}
+                <div class="skeleton simulado-skeleton" aria-hidden="true"></div>
+              {/each}
+            </div>
+          {:else if erroSimulados}
+            <div class="error-state">
+              <p class="erro">{erroSimulados}</p>
+            </div>
+          {:else}
+            <div class="simulados-grid compact">
+              {#each simuladosCards as simulado}
+                <button
+                  type="button"
+                  class="simulado-item"
+                  class:disponivel={simulado.disponivel}
+                  class:indisponivel={!simulado.disponivel}
+                  on:click={() => simulado.disponivel && iniciarSimulado(simulado.numero)}
+                  disabled={!simulado.disponivel}
+                  title={simulado.disponivel ? `Iniciar Simulado ${simulado.numero}` : 'Em breve'}
+                >
+                  <div class="simulado-number">
+                    <span class="number-badge">{simulado.numero}</span>
+                  </div>
+                  <div class="simulado-status">
+                    {#if simulado.disponivel}
+                      <span class="status-text disponivel">Disponível</span>
+                    {:else}
+                      <span class="status-text indisponivel">Em breve</span>
+                    {/if}
+                  </div>
+                </button>
+              {/each}
+            </div>
+          {/if}
+        </div>
       </section>
 
-      <section class="card simulados temas-card">
-        <div class="cabecalho seção">
-          <h2>Filtrar por tema</h2>
+      <!-- Coluna direita: Filtrar por tema -->
+      <section class="section-card temas-section">
+        <header class="section-header">
+          <div class="section-title-group">
+            <h2 class="section-title">
+              <span class="section-icon">🎯</span>
+              Filtrar por tema
+            </h2>
+            <p class="section-subtitle">Pratique por assunto específico</p>
+          </div>
           {#if carregandoSimulados}
             <span class="badge neutro">Carregando...</span>
           {:else if erroSimulados}
             <span class="badge erro">{erroSimulados}</span>
           {/if}
-        </div>
+        </header>
 
-        {#if carregandoSimulados}
-          <div class="skeleton-grid temas">
-            {#each Array(6) as _, index}
-              <div class="skeleton" aria-hidden="true"></div>
-            {/each}
-          </div>
-        {:else if erroSimulados}
-          <p class="erro">{erroSimulados}</p>
-        {:else if !temasCards.length}
-          <p class="vazio">Cadastre temas para habilitar os filtros por assunto.</p>
-        {:else}
-          <div class="temas-grid">
-            {#each temasCards as tema}
-              <button
-                type="button"
-                class="simulado-box tema"
-                class:indisponivel={!tema.disponivel}
-                on:click={() => tema.disponivel && iniciarPorTema(tema.tema)}
-                disabled={!tema.disponivel}
-              >
-                <div class="simulado-content">
-                  <strong class="simulado-title tema-titulo" use:fitText={{ minSize: 0.75, maxSize: 1.15 }}>{tema.tema}</strong>
-                  {#if !tema.disponivel}
-                    <span class="simulado-foot indisponivel">Em breve</span>
-                  {/if}
-                </div>
-              </button>
-            {/each}
-          </div>
-        {/if}
+        <div class="section-content">
+          {#if carregandoSimulados}
+            <div class="skeleton-grid temas">
+              {#each Array(3) as _, index}
+                <div class="skeleton tema-skeleton" aria-hidden="true"></div>
+              {/each}
+            </div>
+          {:else if erroSimulados}
+            <div class="error-state">
+              <p class="erro">{erroSimulados}</p>
+            </div>
+          {:else if !temasCards.length}
+            <div class="empty-state">
+              <p class="vazio">Cadastre temas para habilitar os filtros por assunto.</p>
+            </div>
+          {:else}
+            <div class="temas-grid">
+              {#each temasCards as tema}
+                <button
+                  type="button"
+                  class="tema-item"
+                  class:disponivel={tema.disponivel}
+                  class:indisponivel={!tema.disponivel}
+                  on:click={() => tema.disponivel && iniciarPorTema(tema.tema)}
+                  disabled={!tema.disponivel}
+                  title={tema.disponivel ? `Filtrar por: ${tema.tema}` : 'Em breve'}
+                >
+                  <div class="tema-content">
+                    <h3 class="tema-title">{tema.tema}</h3>
+                    <div class="tema-info">
+                      {#if tema.disponivel}
+                        <span class="tema-questoes">{tema.totalQuestoes || 0} questões</span>
+                        <span class="status-indicator disponivel"></span>
+                      {:else}
+                        <span class="status-text indisponivel">Em breve</span>
+                        <span class="status-indicator indisponivel"></span>
+                      {/if}
+                    </div>
+                  </div>
+                </button>
+              {/each}
+            </div>
+          {/if}
+        </div>
       </section>
     </div>
   </main>
@@ -1534,174 +1573,290 @@
     font-size: clamp(0.9rem, 1.8vw, 1rem);
   }
 
-  .simulados-paineis {
+  /* Layout principal das seções */
+  .dashboard-sections {
     display: grid;
-    gap: clamp(1.25rem, 2.5vw, 1.5rem);
-    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    grid-template-columns: 1fr 1fr;
+    gap: clamp(1.5rem, 3vw, 2rem);
     align-items: start;
+    margin-top: clamp(2rem, 4vw, 2.5rem);
   }
 
-  .simulados-grid {
-    margin-top: clamp(1.25rem, 2.5vw, 1.5rem);
+  /* Cards das seções */
+  .section-card {
+    background: 
+      linear-gradient(135deg, rgba(255, 255, 255, 0.08) 0%, rgba(255, 255, 255, 0.03) 100%),
+      rgba(15, 23, 42, 0.9);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: clamp(1rem, 2vw, 1.5rem);
+    padding: clamp(1.5rem, 3vw, 2rem);
+    backdrop-filter: blur(20px);
+    box-shadow: 
+      0 20px 40px rgba(0, 0, 0, 0.15),
+      inset 0 1px 0 rgba(255, 255, 255, 0.1);
+    transition: all 0.3s ease;
+    height: fit-content;
+  }
+
+  .section-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 
+      0 25px 50px rgba(0, 0, 0, 0.2),
+      inset 0 1px 0 rgba(255, 255, 255, 0.15);
+  }
+
+  /* Cabeçalhos das seções */
+  .section-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 1rem;
+    margin-bottom: clamp(1.5rem, 3vw, 2rem);
+    padding-bottom: clamp(1rem, 2vw, 1.25rem);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  }
+
+  .section-title-group {
+    display: flex;
+    flex-direction: column;
+    gap: clamp(0.5rem, 1vw, 0.75rem);
+    flex: 1;
+  }
+
+  .section-title {
+    font-size: clamp(1.3rem, 2.6vw, 1.6rem);
+    font-weight: 700;
+    color: var(--text-primary);
+    margin: 0;
+    display: flex;
+    align-items: center;
+    gap: clamp(0.5rem, 1vw, 0.75rem);
+    line-height: 1.2;
+  }
+
+  .section-icon {
+    font-size: clamp(1.2rem, 2.4vw, 1.4rem);
+    filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3));
+  }
+
+  .section-subtitle {
+    font-size: clamp(0.85rem, 1.7vw, 0.95rem);
+    color: var(--text-muted);
+    margin: 0;
+    line-height: 1.4;
+  }
+
+  /* Conteúdo das seções */
+  .section-content {
+    min-height: 200px;
+  }
+
+  /* Grid dos simulados - layout compacto */
+  .simulados-grid.compact {
     display: grid;
-    gap: clamp(1rem, 2vw, 1.25rem);
-    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
-    grid-auto-rows: auto;
+    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+    gap: clamp(0.75rem, 1.5vw, 1rem);
     max-width: 100%;
   }
 
-  .simulado-box {
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    border-radius: clamp(0.75rem, 1.5vw, 1rem);
-    padding: clamp(1.2rem, 2.5vw, 1.6rem) clamp(1rem, 2vw, 1.25rem);
-    display: flex;
-    align-items: center;
-    justify-content: center;
+  .simulado-item {
     background: 
       linear-gradient(135deg, rgba(15, 23, 42, 0.9) 0%, rgba(30, 41, 59, 0.9) 100%);
-    cursor: pointer;
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    text-align: center;
-    position: relative;
-    overflow: hidden;
-    backdrop-filter: blur(20px);
-    box-shadow: 
-      0 10px 25px rgba(0, 0, 0, 0.2),
-      inset 0 1px 0 rgba(255, 255, 255, 0.1);
-  }
-
-  .simulado-box::before {
-    content: '';
-    position: absolute;
-    inset: -2px;
-    border-radius: inherit;
-    padding: 2px;
-    background: linear-gradient(135deg, rgba(99, 102, 241, 0.6), transparent 50%, rgba(249, 115, 22, 0.4));
-    -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
-    mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
-    -webkit-mask-composite: xor;
-    mask-composite: exclude;
-    opacity: 0;
-    transition: opacity 0.3s ease;
-  }
-
-  .simulado-box:hover,
-  .simulado-box:focus-visible {
-    transform: translateY(-4px);
-    border-color: rgba(99, 102, 241, 0.4);
-    box-shadow: 
-      0 20px 40px rgba(99, 102, 241, 0.2),
-      inset 0 1px 0 rgba(255, 255, 255, 0.2);
-    outline: none;
-  }
-
-  .simulado-box:hover::before,
-  .simulado-box:focus-visible::before {
-    opacity: 1;
-  }
-
-  .simulado-content {
-    width: 100%;
+    border: 2px solid rgba(255, 255, 255, 0.1);
+    border-radius: clamp(0.75rem, 1.5vw, 1rem);
+    padding: clamp(1rem, 2vw, 1.25rem);
     display: flex;
     flex-direction: column;
     align-items: center;
+    justify-content: center;
     gap: clamp(0.5rem, 1vw, 0.75rem);
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     position: relative;
-    z-index: 1;
+    overflow: hidden;
+    backdrop-filter: blur(10px);
+    min-height: clamp(80px, 15vw, 100px);
   }
 
-  .simulado-title {
-    font-size: clamp(1.4rem, 3vw, 1.8rem);
+  .simulado-item.disponivel {
+    border-color: rgba(34, 197, 94, 0.3);
+    box-shadow: 
+      0 4px 12px rgba(34, 197, 94, 0.1),
+      inset 0 1px 0 rgba(255, 255, 255, 0.1);
+  }
+
+  .simulado-item.disponivel:hover {
+    transform: translateY(-3px);
+    border-color: rgba(34, 197, 94, 0.5);
+    box-shadow: 
+      0 8px 16px rgba(34, 197, 94, 0.2),
+      inset 0 1px 0 rgba(255, 255, 255, 0.2);
+  }
+
+  .simulado-item.indisponivel {
+    opacity: 0.6;
+    cursor: not-allowed;
+    border-color: rgba(239, 68, 68, 0.3);
+  }
+
+  .simulado-number {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .number-badge {
+    font-size: clamp(1.5rem, 3vw, 2rem);
+    font-weight: 800;
     color: var(--text-primary);
-    line-height: 1.2;
-    font-weight: 700;
     text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
   }
 
-  .simulado-foot {
-    font-size: clamp(0.7rem, 1.4vw, 0.85rem);
-    padding: clamp(0.3rem, 0.6vw, 0.4rem) clamp(0.75rem, 1.5vw, 0.95rem);
-    border-radius: 999px;
-    background: rgba(15, 23, 42, 0.8);
-    color: var(--text-secondary);
-    letter-spacing: 0.04em;
-    text-transform: uppercase;
+  .simulado-status {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .status-text {
+    font-size: clamp(0.7rem, 1.4vw, 0.8rem);
     font-weight: 600;
-    border: 1px solid rgba(255, 255, 255, 0.1);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+
+  .status-text.disponivel {
+    color: #22c55e;
+  }
+
+  .status-text.indisponivel {
+    color: #ef4444;
+  }
+
+  /* Grid dos temas */
+  .temas-grid {
+    display: grid;
+    gap: clamp(1rem, 2vw, 1.25rem);
+    grid-template-columns: 1fr;
+  }
+
+  .tema-item {
+    background: 
+      linear-gradient(135deg, rgba(15, 23, 42, 0.9) 0%, rgba(30, 41, 59, 0.9) 100%);
+    border: 2px solid rgba(255, 255, 255, 0.1);
+    border-radius: clamp(0.75rem, 1.5vw, 1rem);
+    padding: clamp(1rem, 2vw, 1.25rem);
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+    overflow: hidden;
     backdrop-filter: blur(10px);
+    text-align: left;
   }
 
-  .simulado-foot.disponivel {
-    background: rgba(34, 197, 94, 0.2);
-    color: #bbf7d0;
-    border-color: rgba(34, 197, 94, 0.4);
-    box-shadow: 0 4px 12px rgba(34, 197, 94, 0.2);
-  }
-
-  .simulado-foot.indisponivel {
-    background: rgba(148, 163, 184, 0.2);
-    color: rgba(226, 232, 240, 0.8);
-    border-color: rgba(148, 163, 184, 0.3);
-  }
-
-  .simulado-box.indisponivel,
-  .simulado-box:disabled {
-    cursor: not-allowed;
-    opacity: 0.6;
-    transform: none;
-  }
-
-  .simulado-box.indisponivel:hover,
-  .simulado-box.indisponivel:focus-visible,
-  .simulado-box:disabled:hover,
-  .simulado-box:disabled:focus-visible {
-    transform: none;
-    border-color: rgba(255, 255, 255, 0.1);
+  .tema-item.disponivel {
+    border-color: rgba(99, 102, 241, 0.3);
     box-shadow: 
-      0 10px 25px rgba(0, 0, 0, 0.2),
+      0 4px 12px rgba(99, 102, 241, 0.1),
       inset 0 1px 0 rgba(255, 255, 255, 0.1);
   }
 
-  .temas-card {
+  .tema-item.disponivel:hover {
+    transform: translateY(-2px);
+    border-color: rgba(99, 102, 241, 0.5);
+    box-shadow: 
+      0 8px 16px rgba(99, 102, 241, 0.2),
+      inset 0 1px 0 rgba(255, 255, 255, 0.2);
+  }
+
+  .tema-item.indisponivel {
+    opacity: 0.6;
+    cursor: not-allowed;
+    border-color: rgba(239, 68, 68, 0.3);
+  }
+
+  .tema-content {
     display: flex;
     flex-direction: column;
+    gap: clamp(0.5rem, 1vw, 0.75rem);
   }
 
-  .temas-grid {
-    margin-top: clamp(1.25rem, 2.5vw, 1.5rem);
-    display: grid;
-    gap: clamp(1rem, 2vw, 1.2rem);
-    grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
-    grid-auto-rows: minmax(140px, auto);
-  }
-
-  .simulado-box.tema .simulado-content {
-    width: 100%;
-    min-height: 120px;
-    padding: clamp(1rem, 2vw, 1.25rem);
-    justify-content: center;
-    align-items: center;
-    gap: clamp(0.5rem, 1vw, 0.6rem);
-  }
-
-  .simulado-box.tema .tema-titulo {
-    font-size: clamp(0.85rem, 1.7vw, 1.1rem);
-    line-height: 1.4;
-    word-break: break-word;
-    hyphens: auto;
-    color: #f1f5f9;
-    text-align: center;
+  .tema-title {
+    font-size: clamp(0.9rem, 1.8vw, 1rem);
     font-weight: 600;
+    color: var(--text-primary);
+    margin: 0;
+    line-height: 1.3;
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+    overflow: hidden;
   }
 
-  .cabecalho.seção {
+  .tema-info {
     display: flex;
     align-items: center;
-    gap: clamp(0.5rem, 1vw, 0.75rem);
-    margin-bottom: clamp(1rem, 2vw, 1.25rem);
-    flex-wrap: wrap;
+    justify-content: space-between;
+    gap: 0.5rem;
   }
 
+  .tema-questoes {
+    font-size: clamp(0.75rem, 1.5vw, 0.85rem);
+    color: var(--text-muted);
+    font-weight: 500;
+  }
+
+  .status-indicator {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+
+  .status-indicator.disponivel {
+    background: #22c55e;
+    box-shadow: 0 0 6px rgba(34, 197, 94, 0.4);
+  }
+
+  .status-indicator.indisponivel {
+    background: #ef4444;
+    box-shadow: 0 0 6px rgba(239, 68, 68, 0.4);
+  }
+
+  /* Estados de loading e erro */
+  .skeleton-grid {
+    display: grid;
+    gap: clamp(1rem, 2vw, 1.25rem);
+  }
+
+  .skeleton-grid .simulado-skeleton {
+    height: clamp(80px, 15vw, 100px);
+    border-radius: clamp(0.75rem, 1.5vw, 1rem);
+  }
+
+  .skeleton-grid .tema-skeleton {
+    height: clamp(60px, 12vw, 80px);
+    border-radius: clamp(0.75rem, 1.5vw, 1rem);
+  }
+
+  .error-state,
+  .empty-state {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 120px;
+    text-align: center;
+    padding: clamp(1rem, 2vw, 1.5rem);
+  }
+
+  .error-state p.erro,
+  .empty-state p.vazio {
+    color: var(--text-muted);
+    font-size: clamp(0.9rem, 1.8vw, 1rem);
+    margin: 0;
+  }
+
+  /* Badges e estados */
   .badge {
     padding: clamp(0.3rem, 0.6vw, 0.4rem) clamp(0.6rem, 1.2vw, 0.8rem);
     border-radius: 999px;
@@ -1734,12 +1889,6 @@
     color: #fecaca;
     border-color: rgba(248, 113, 113, 0.4);
     box-shadow: 0 4px 12px rgba(248, 113, 113, 0.2);
-  }
-
-  .skeleton-grid {
-    display: grid;
-    gap: clamp(0.75rem, 1.5vw, 1rem);
-    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
   }
 
   .skeleton {
@@ -1870,8 +2019,51 @@
       flex-direction: column;
     }
 
-    .simulados-paineis {
+    .dashboard-sections {
       grid-template-columns: 1fr;
+      gap: 1.5rem;
+    }
+
+    .simulados-grid.compact {
+      grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+    }
+  }
+
+  @media (max-width: 640px) {
+    .dashboard-sections {
+      gap: 1rem;
+    }
+
+    .section-card {
+      padding: 1.25rem;
+    }
+
+    .section-header {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 0.75rem;
+    }
+
+    .simulados-grid.compact {
+      grid-template-columns: repeat(3, 1fr);
+      gap: 0.75rem;
+    }
+
+    .simulado-item {
+      min-height: 70px;
+      padding: 0.75rem;
+    }
+
+    .number-badge {
+      font-size: 1.25rem;
+    }
+
+    .tema-item {
+      padding: 1rem;
+    }
+
+    .tema-title {
+      font-size: 0.85rem;
     }
 
     .simulados-grid {
