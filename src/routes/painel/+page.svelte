@@ -562,19 +562,16 @@
             <!-- Small Stats Cards Below Ring -->
             <div class="small-stats-grid">
               <div class="small-stat-card success">
-                <div class="small-stat-icon">✅</div>
                 <div class="small-stat-number">{desempenhoTotalAcertos}</div>
                 <div class="small-stat-label">Acertos</div>
               </div>
 
               <div class="small-stat-card neutral">
-                <div class="small-stat-icon">📝</div>
                 <div class="small-stat-number">{desempenhoTotalQuestoes}</div>
                 <div class="small-stat-label">Questões</div>
               </div>
 
               <div class="small-stat-card warning">
-                <div class="small-stat-icon">❌</div>
                 <div class="small-stat-number">{taxaErro}%</div>
                 <div class="small-stat-label">Taxa de erro</div>
               </div>
@@ -1538,10 +1535,6 @@
 
   .small-stat-card.warning {
     border-left: 3px solid #f97316;
-  }
-
-  .small-stat-icon {
-    font-size: 1.5rem;
   }
 
   .small-stat-number {
@@ -2815,10 +2808,6 @@
 
     .small-stat-card {
       padding: 0.75rem;
-    }
-
-    .small-stat-icon {
-      font-size: 1.25rem;
     }
 
     .small-stat-number {
