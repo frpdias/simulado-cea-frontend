@@ -13,8 +13,7 @@
     papel?: string;
   }
 
-  const logoFrUrl =
-    'https://zcrzyhdzjanivracmoub.supabase.co/storage/v1/object/public/public-assets/logo5.png';
+  const logoFrUrl = '/FULLSTACK3.png';
 
   export let data: PageData;
   const supabase = data.supabase;
@@ -457,7 +456,7 @@
               <small>{emailPrincipal}</small>
             {/if}
             <div class="hero-badges">
-              <span class="hero-sub brand">FR Educacional</span>
+              <span class="hero-sub brand">FullStack Educacional</span>
               <span class="hero-sub produto">Simulado CEA</span>
             </div>
           </div>
@@ -465,7 +464,7 @@
 
         <div class="hero-actions">
           <div class="hero-brand">
-            <img src={logoFrUrl} alt="FR Educacional" loading="lazy" />
+            <img src={logoFrUrl} alt="FullStack Educacional" loading="lazy" />
             <span>Simulado CEA</span>
           </div>
           <div class="action-buttons">

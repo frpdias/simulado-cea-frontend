@@ -12,8 +12,7 @@
   let email = '';
   let senha = '';
 
-  const logoFrUrl =
-    'https://zcrzyhdzjanivracmoub.supabase.co/storage/v1/object/public/public-assets/logo5.png';
+  const logoFrUrl = '/FULLSTACK3.png';
 
   onMount(async () => {
     // Verificar se já está logado
@@ -77,7 +76,7 @@
   <div class="login-admin-card">
     <!-- Header com logo e título -->
     <div class="admin-header">
-      <img src={logoFrUrl} alt="FR Educacional" class="admin-logo" />
+      <img src={logoFrUrl} alt="FullStack Educacional" class="admin-logo" />
       <div class="admin-title">
         <h1>🛡️ Painel Administrativo</h1>
         <p>Acesso exclusivo para administradores</p>

@@ -2,8 +2,7 @@
   import { onMount } from 'svelte';
   import type { PageData } from './$types';
 
-  const logoUrl =
-    'https://zcrzyhdzjanivracmoub.supabase.co/storage/v1/object/public/public-assets/logo5.png';
+  const logoUrl = '/FULLSTACK3.png';
 
   export let data: PageData;
   const supabase = data.supabase;
@@ -85,7 +84,7 @@ $: usuariosFiltrados = usuarios.filter((usuario) =>
 <div class="admin">
   <header class="admin__header">
     <div class="admin__brand">
-      <img src={logoUrl} alt="FR Educacional" loading="lazy" />
+      <img src={logoUrl} alt="FullStack Educacional" loading="lazy" />
       <span>Simulado CEA · Administração</span>
     </div>
     <div class="admin__intro">

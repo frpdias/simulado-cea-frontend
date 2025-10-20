@@ -1,13 +1,12 @@
 <script lang="ts">
-	const logoUrl =
-		'https://zcrzyhdzjanivracmoub.supabase.co/storage/v1/object/public/public-assets/logo5.png';
+	const logoUrl = '/FULLSTACK3.png';
 </script>
 
 <main class="landing">
 	<section class="landing__hero">
 		<div class="landing__brand">
 			<div class="brand-logo">
-				<img src={logoUrl} alt="FR Educacional" loading="lazy" />
+				<img src={logoUrl} alt="FullStack Educacional" loading="lazy" />
 				<div class="brand-pulse"></div>
 			</div>
 			<div class="brand-text">

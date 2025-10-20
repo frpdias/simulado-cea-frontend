@@ -4,8 +4,7 @@
   import { get } from 'svelte/store';
   import type { PageData } from './$types';
 
-  const logoUrl =
-    'https://zcrzyhdzjanivracmoub.supabase.co/storage/v1/object/public/public-assets/logo5.png';
+  const logoUrl = '/FULLSTACK3.png';
 
   export let data: PageData;
   const supabase = data.supabase;
@@ -52,7 +51,7 @@
     <div class="panel-content">
       <div class="auth__brand">
         <div class="brand-logo">
-          <img src={logoUrl} alt="FR Educacional" loading="lazy" />
+          <img src={logoUrl} alt="FullStack Educacional" loading="lazy" />
           <div class="logo-glow"></div>
         </div>
         <div class="brand-text">

@@ -1,8 +1,7 @@
 <script lang="ts">
   import { goto } from '$app/navigation';
 
-  const logoUrl =
-    'https://zcrzyhdzjanivracmoub.supabase.co/storage/v1/object/public/public-assets/logo5.png';
+  const logoUrl = '/FULLSTACK3.png';
 
   let nome = '';
   let email = '';
@@ -63,7 +62,7 @@
     <div class="panel-content">
       <div class="auth__brand">
         <div class="brand-logo">
-          <img src={logoUrl} alt="FR Educacional" loading="lazy" />
+          <img src={logoUrl} alt="FullStack Educacional" loading="lazy" />
           <div class="logo-glow"></div>
         </div>
         <div class="brand-text">
