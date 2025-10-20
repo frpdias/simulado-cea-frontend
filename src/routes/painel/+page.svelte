@@ -508,119 +508,118 @@
           Nenhum resultado registrado ainda. Finalize um simulado para visualizar seu desempenho.
         </p>
       {:else}
-        <div class="desempenho-compact">
-          <!-- Header compacto -->
-          <header class="aproveitamento-head">
-            <div class="head-content">
-              <span class="aproveitamento-kicker">Painel de progresso</span>
-              <h3>{nomePrincipal ? `${nomePrincipal.split(' ')[0]}, continue acelerando!` : 'Seu progresso atualizado'}</h3>
-              <p>Consolidado com base nos simulados finalizados recentemente.</p>
+        <div class="desempenho-horizontal-card">
+          <!-- Layout horizontal completo -->
+          <div class="dashboard-horizontal">
+            <!-- Seção principal com ring e título -->
+            <div class="dashboard-main">
+              <div class="dashboard-header">
+                <div class="header-text">
+                  <span class="aproveitamento-kicker">Painel de progresso</span>
+                  <h3>{nomePrincipal ? `${nomePrincipal.split(' ')[0]}, continue acelerando!` : 'Seu progresso atualizado'}</h3>
+                  <p>Consolidado com base nos simulados finalizados recentemente.</p>
+                </div>
+                <div class="ring-compact" role="img" aria-label={`Aproveitamento de ${aproveitamentoGeral}%`}>
+                  <svg viewBox="0 0 120 120">
+                    <defs>
+                      <linearGradient id="ring-gradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                        <stop offset="0%" stop-color="#38bdf8" />
+                        <stop offset="100%" stop-color="#6366f1" />
+                      </linearGradient>
+                      <linearGradient id="ring-gradient-positive" x1="0%" y1="0%" x2="100%" y2="100%">
+                        <stop offset="0%" stop-color="#34d399" />
+                        <stop offset="100%" stop-color="#14b8a6" />
+                      </linearGradient>
+                    </defs>
+                    <circle class="ring-track" cx="60" cy="60" r="45" />
+                    <circle
+                      class={`ring-progress ${aproveitamentoGeral !== null && aproveitamentoGeral >= 70 ? 'positivo' : ''}`}
+                      cx="60"
+                      cy="60"
+                      r="45"
+                      stroke-dasharray={2 * Math.PI * 45}
+                      stroke-dashoffset={
+                        aproveitamentoGeral !== null
+                          ? 2 * Math.PI * 45 - (aproveitamentoGeral / 100) * 2 * Math.PI * 45
+                          : 2 * Math.PI * 45
+                      }
+                    />
+                  </svg>
+                  <div class="ring-value">
+                    <strong>{aproveitamentoGeral}%</strong>
+                    <span>Aproveitamento</span>
+                  </div>
+                </div>
+              </div>
             </div>
-          </header>
 
-          <!-- Layout horizontal principal -->
-          <div class="aproveitamento-horizontal">
-            <!-- Ring de aproveitamento -->
-            <div class="aproveitamento-ring-compact" role="img" aria-label={`Aproveitamento de ${aproveitamentoGeral}%`}>
-              <svg viewBox="0 0 200 200">
-                <defs>
-                  <linearGradient id="ring-gradient" x1="0%" y1="0%" x2="100%" y2="100%">
-                    <stop offset="0%" stop-color="#38bdf8" />
-                    <stop offset="100%" stop-color="#6366f1" />
-                  </linearGradient>
-                  <linearGradient id="ring-gradient-positive" x1="0%" y1="0%" x2="100%" y2="100%">
-                    <stop offset="0%" stop-color="#34d399" />
-                    <stop offset="100%" stop-color="#14b8a6" />
-                  </linearGradient>
-                </defs>
-                <circle class="ring-track" cx="100" cy="100" r="74" />
-                <circle
-                  class={`ring-progress ${aproveitamentoGeral !== null && aproveitamentoGeral >= 70 ? 'positivo' : ''}`}
-                  cx="100"
-                  cy="100"
-                  r="74"
-                  stroke-dasharray={2 * Math.PI * 74}
-                  stroke-dashoffset={
-                    aproveitamentoGeral !== null
-                      ? 2 * Math.PI * 74 - (aproveitamentoGeral / 100) * 2 * Math.PI * 74
-                      : 2 * Math.PI * 74
-                  }
-                />
-              </svg>
-              <div class="ring-value">
-                <strong>{aproveitamentoGeral}%</strong>
-                <span>Aproveitamento</span>
-                <small>{simuladosResumo.length} simulado(s)</small>
+            <!-- Stats em linha horizontal -->
+            <div class="stats-horizontal">
+              <div class="stat-card-horizontal">
+                <div class="stat-icon success">✓</div>
+                <div class="stat-info">
+                  <strong>{desempenhoTotalAcertos}</strong>
+                  <span>Acertos</span>
+                  <small>Média {mediaAcertos} por simulado</small>
+                </div>
+              </div>
+              
+              <div class="stat-card-horizontal">
+                <div class="stat-icon neutral">?</div>
+                <div class="stat-info">
+                  <strong>{desempenhoTotalQuestoes}</strong>
+                  <span>Questões</span>
+                  <small>Média {mediaQuestoes} por simulado</small>
+                </div>
+              </div>
+              
+              <div class="stat-card-horizontal error">
+                <div class="stat-icon error">✗</div>
+                <div class="stat-info">
+                  <strong>{taxaErro}%</strong>
+                  <span>Taxa de erro</span>
+                  <small>{desempenhoTotalQuestoes - desempenhoTotalAcertos} incorretas</small>
+                </div>
               </div>
             </div>
 
-            <!-- Stats horizontais -->
-            <div class="aproveitamento-stats-horizontal">
-              <div class="stat-row">
-                <div class="aproveitamento-stat">
-                  <span class="indicador ganho"></span>
-                  <div class="stat-content">
-                    <strong>{desempenhoTotalAcertos}</strong>
-                    <span>Acertos</span>
-                    <small>Média {mediaAcertos} por simulado</small>
-                  </div>
-                </div>
-                <div class="aproveitamento-stat">
-                  <span class="indicador neutro"></span>
-                  <div class="stat-content">
-                    <strong>{desempenhoTotalQuestoes}</strong>
-                    <span>Questões</span>
-                    <small>Média {mediaQuestoes} por simulado</small>
-                  </div>
-                </div>
-                <div class="aproveitamento-stat alerta">
-                  <span class="indicador alerta"></span>
-                  <div class="stat-content">
-                    <strong>{taxaErro}%</strong>
-                    <span>Taxa de erro</span>
-                    <small>{desempenhoTotalQuestoes - desempenhoTotalAcertos} incorretas</small>
-                  </div>
-                </div>
-              </div>
-
-              <!-- Cards de destaque -->
-              <div class="destaque-cards">
-                {#if melhorTema}
-                  <div class="destaque-card positivo">
-                    <div class="destaque-header">
-                      <span class="destaque-label">Maior desempenho</span>
-                      <div class="destaque-progress">
-                        <span style={`width: ${melhorTema.percentual}%`}></span>
-                      </div>
+            <!-- Performance insights -->
+            <div class="insights-horizontal">
+              {#if melhorTema}
+                <div class="insight-card positive">
+                  <div class="insight-header">
+                    <span class="insight-label">🎯 Melhor desempenho</span>
+                    <div class="progress-mini">
+                      <span style={`width: ${melhorTema.percentual}%`}></span>
                     </div>
-                    <strong>{melhorTema.tema}</strong>
-                    <small>{melhorTema.percentual}% de acerto</small>
                   </div>
-                {/if}
+                  <strong>{melhorTema.tema}</strong>
+                  <small>{melhorTema.percentual}% de acerto</small>
+                </div>
+              {/if}
 
-                {#if temaReforcar && temaReforcar !== melhorTema}
-                  <div class="destaque-card alerta">
-                    <div class="destaque-header">
-                      <span class="destaque-label">Foco para revisão</span>
-                      <div class="destaque-progress">
-                        <span style={`width: ${temaReforcar.percentual}%`}></span>
-                      </div>
+              {#if temaReforcar && temaReforcar !== melhorTema}
+                <div class="insight-card alert">
+                  <div class="insight-header">
+                    <span class="insight-label">📚 Foco para revisão</span>
+                    <div class="progress-mini">
+                      <span style={`width: ${temaReforcar.percentual}%`}></span>
                     </div>
-                    <strong>{temaReforcar.tema}</strong>
-                    <small>{temaReforcar.percentual}% de acerto</small>
                   </div>
-                {/if}
-              </div>
+                  <strong>{temaReforcar.tema}</strong>
+                  <small>{temaReforcar.percentual}% de acerto</small>
+                </div>
+              {/if}
             </div>
           </div>
 
           <!-- Ações -->
-          <div class="aproveitamento-actions">
-            <button type="button" on:click={() => goto('/simulados')}>
+          <div class="actions-horizontal">
+            <button type="button" class="btn-primary" on:click={() => goto('/simulados')}>
               Iniciar novo simulado
             </button>
-            <button type="button" class="ghost" on:click={() => goto('/painel?historico=1')}>
-              Visualizar histórico completo
+            <button type="button" class="btn-secondary" on:click={() => goto('/painel?historico=1')}>
+              Visualizar histórico
             </button>
           </div>
         </div>
@@ -1151,7 +1150,7 @@
     flex-wrap: wrap;
   }
 
-  .desempenho-compact {
+  .desempenho-horizontal-card {
     background: 
       radial-gradient(circle at 10% 10%, rgba(99, 102, 241, 0.3), transparent 55%),
       radial-gradient(circle at 90% 10%, rgba(20, 184, 166, 0.2), transparent 60%),
@@ -1161,10 +1160,261 @@
     box-shadow: 
       0 25px 50px rgba(0, 0, 0, 0.25),
       inset 0 1px 0 rgba(255, 255, 255, 0.1);
-    padding: clamp(1.5rem, 4vw, 2.5rem);
+    padding: clamp(1.5rem, 3vw, 2rem);
     backdrop-filter: blur(20px);
     position: relative;
     overflow: hidden;
+  }
+
+  .dashboard-horizontal {
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+    gap: clamp(1.5rem, 3vw, 2rem);
+    align-items: start;
+  }
+
+  .dashboard-main {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+  }
+
+  .dashboard-header {
+    display: flex;
+    align-items: center;
+    gap: clamp(1.5rem, 3vw, 2rem);
+  }
+
+  .header-text {
+    flex: 1;
+  }
+
+  .header-text .aproveitamento-kicker {
+    font-size: clamp(0.7rem, 1.4vw, 0.8rem);
+    text-transform: uppercase;
+    letter-spacing: 0.2em;
+    color: rgba(148, 163, 184, 0.75);
+    font-weight: 600;
+    display: block;
+    margin-bottom: 0.5rem;
+  }
+
+  .header-text h3 {
+    margin: 0 0 0.5rem 0;
+    font-size: clamp(1.2rem, 2.5vw, 1.6rem);
+    color: var(--text-primary);
+    font-weight: 700;
+    line-height: 1.2;
+  }
+
+  .header-text p {
+    margin: 0;
+    color: rgba(203, 213, 225, 0.8);
+    font-size: clamp(0.8rem, 1.6vw, 0.9rem);
+    line-height: 1.5;
+  }
+
+  .ring-compact {
+    position: relative;
+    width: 100px;
+    height: 100px;
+    flex-shrink: 0;
+  }
+
+  .ring-compact svg {
+    width: 100%;
+    height: 100%;
+    transform: rotate(-90deg);
+  }
+
+  .stats-horizontal {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1rem;
+  }
+
+  .stat-card-horizontal {
+    background: rgba(15, 23, 42, 0.8);
+    border-radius: 12px;
+    padding: 1rem;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    transition: all 0.3s ease;
+  }
+
+  .stat-card-horizontal:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+  }
+
+  .stat-card-horizontal.error {
+    border-color: rgba(239, 68, 68, 0.3);
+  }
+
+  .stat-icon {
+    width: 32px;
+    height: 32px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    color: white;
+    flex-shrink: 0;
+  }
+
+  .stat-icon.success {
+    background: linear-gradient(135deg, #34d399, #14b8a6);
+  }
+
+  .stat-icon.neutral {
+    background: linear-gradient(135deg, #38bdf8, #6366f1);
+  }
+
+  .stat-icon.error {
+    background: linear-gradient(135deg, #ef4444, #dc2626);
+  }
+
+  .stat-info {
+    display: flex;
+    flex-direction: column;
+    gap: 0.1rem;
+  }
+
+  .stat-info strong {
+    font-size: 1.1rem;
+    color: var(--text-primary);
+    font-weight: 700;
+    line-height: 1;
+  }
+
+  .stat-info span {
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    font-weight: 600;
+  }
+
+  .stat-info small {
+    font-size: 0.7rem;
+    color: rgba(148, 163, 184, 0.75);
+  }
+
+  .insights-horizontal {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+
+  .insight-card {
+    background: rgba(15, 23, 42, 0.8);
+    border-radius: 10px;
+    padding: 0.75rem;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+  }
+
+  .insight-card.positive {
+    border-color: rgba(34, 197, 94, 0.3);
+    background: rgba(34, 197, 94, 0.05);
+  }
+
+  .insight-card.alert {
+    border-color: rgba(249, 115, 22, 0.3);
+    background: rgba(249, 115, 22, 0.05);
+  }
+
+  .insight-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  .insight-label {
+    font-size: 0.65rem;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    font-weight: 600;
+  }
+
+  .progress-mini {
+    width: 30px;
+    height: 3px;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 2px;
+    overflow: hidden;
+  }
+
+  .progress-mini span {
+    display: block;
+    height: 100%;
+    background: linear-gradient(135deg, #34d399, #14b8a6);
+    transition: width 0.6s ease;
+  }
+
+  .insight-card.alert .progress-mini span {
+    background: linear-gradient(135deg, #f97316, #ea580c);
+  }
+
+  .insight-card strong {
+    font-size: 0.8rem;
+    color: var(--text-primary);
+    font-weight: 600;
+    line-height: 1.3;
+  }
+
+  .insight-card small {
+    font-size: 0.7rem;
+    color: rgba(148, 163, 184, 0.75);
+  }
+
+  .actions-horizontal {
+    display: flex;
+    gap: 1rem;
+    margin-top: 1rem;
+    flex-wrap: wrap;
+  }
+
+  .btn-primary, .btn-secondary {
+    padding: 0.75rem 1.5rem;
+    border-radius: 12px;
+    border: none;
+    font-weight: 600;
+    font-size: 0.85rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .btn-primary {
+    background: linear-gradient(135deg, var(--brand-primary), var(--brand-secondary));
+    color: white;
+  }
+
+  .btn-primary:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 8px 16px rgba(99, 102, 241, 0.3);
+  }
+
+  .btn-secondary {
+    background: rgba(255, 255, 255, 0.1);
+    color: var(--text-primary);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+  }
+
+  .btn-secondary:hover {
+    background: rgba(255, 255, 255, 0.15);
+    transform: translateY(-1px);
   }
 
   .desempenho-skeleton {
@@ -1989,19 +2239,20 @@
 
   /* Responsive Design */
   @media (max-width: 1200px) {
-    .aproveitamento-horizontal {
+    .dashboard-horizontal {
       grid-template-columns: 1fr;
-      gap: 2rem;
-      text-align: center;
+      gap: 1.5rem;
     }
 
-    .stat-row {
+    .dashboard-header {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 1rem;
+    }
+
+    .stats-horizontal {
       grid-template-columns: 1fr;
       gap: 0.75rem;
-    }
-
-    .destaque-cards {
-      grid-template-columns: 1fr;
     }
   }
 
@@ -2051,25 +2302,29 @@
       padding: 1.5rem 1rem;
     }
 
-    .desempenho-compact {
+    .desempenho-horizontal-card {
       padding: 1.5rem 1rem;
     }
 
-    .aproveitamento-horizontal {
-      gap: 1.5rem;
+    .dashboard-header {
+      text-align: center;
     }
 
-    .aproveitamento-ring-compact {
-      width: 100px;
-      height: 100px;
+    .ring-compact {
+      margin: 0 auto;
     }
 
-    .aproveitamento-stat {
+    .stat-card-horizontal {
       padding: 0.75rem;
     }
 
-    .destaque-card {
-      padding: 0.75rem;
+    .actions-horizontal {
+      flex-direction: column;
+    }
+
+    .btn-primary, .btn-secondary {
+      width: 100%;
+      justify-content: center;
     }
 
     .hero-user {
