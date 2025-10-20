@@ -1,139 +1,268 @@
-<main class="center">
-	<div class="card glass">
-		<div class="logo-bg">
-			<img src="https://zcrzyhdzjanivracmoub.supabase.co/storage/v1/object/public/public-assets/logo5.png" alt="Logo da empresa" class="logo-integrada" />
+<script lang="ts">
+	const logoUrl =
+		'https://zcrzyhdzjanivracmoub.supabase.co/storage/v1/object/public/public-assets/logo5.png';
+</script>
+
+<main class="landing">
+	<section class="landing__hero">
+		<div class="landing__brand">
+			<img src={logoUrl} alt="FR Educacional" loading="lazy" />
+			<strong>Simulado CEA</strong>
 		</div>
-		<h1 class="titulo-destaque">Bem-vindo ao Simulado CEA!</h1>
-		<nav class="menu-principal">
-			<a href="/login" class="menu-link">Login</a>
-			<a href="/cadastro" class="menu-link">Cadastro</a>
-			<a href="/pagamento" class="menu-link">Pagamento</a>
-			<a href="/admin" class="menu-link">Painel Admin</a>
+
+		<h1>Treine com segurança, avance com confiança.</h1>
+		<p>
+			Simulados realistas, monitoramento inteligente e um painel completo para você dominar a
+			prova do Certificado de Especialista ANBIMA.
+		</p>
+
+		<nav class="landing__actions">
+			<a class="action primary" href="/cadastro">Começar agora</a>
+			<a class="action secondary" href="/painel">Entrar como aluno</a>
 		</nav>
-		<p>Escolha uma opção no menu para começar.</p>
-	</div>
+
+		<div class="landing__meta">
+			<span>Questões atualizadas por especialistas</span>
+			<span>Sala do administrador integrada</span>
+			<span>Estude onde estiver</span>
+		</div>
+	</section>
+
+	<section class="landing__menu">
+		<h2>Navegue rapidamente</h2>
+
+		<div class="landing__grid">
+			<a href="/painel" class="menu-card">
+				<span class="menu-card__title">Painel do Aluno</span>
+				<small>Resumo do desempenho, simulados e filtros por tema</small>
+			</a>
+			<a href="/login" class="menu-card">
+				<span class="menu-card__title">Login</span>
+				<small>Acesse sua conta e continue de onde parou</small>
+			</a>
+			<a href="/cadastro" class="menu-card">
+				<span class="menu-card__title">Cadastro</span>
+				<small>Crie uma conta e comece a treinar em minutos</small>
+			</a>
+			<a href="/pagamento" class="menu-card">
+				<span class="menu-card__title">Pagamento</span>
+				<small>Planos e condições especiais para sua aprovação</small>
+			</a>
+			<a href="/admin" class="menu-card">
+				<span class="menu-card__title">Painel Admin</span>
+				<small>Gestão de usuários e acompanhamento em tempo real</small>
+			</a>
+		</div>
+	</section>
 </main>
+
 <style>
-	.menu-principal {
-		display: flex;
-		flex-wrap: wrap;
-		justify-content: center;
-		gap: 1.2rem;
-		margin: 1.5rem 0 0.5rem 0;
-	}
-	.menu-link {
-		background: linear-gradient(90deg, #ff8800 60%, #6366f1 100%);
-		color: #fff;
-		padding: 0.7em 1.5em;
-		border-radius: 18px;
-		font-weight: 600;
-		font-size: 1.1em;
-		text-decoration: none;
-		box-shadow: 0 2px 8px rgba(0,0,0,0.08);
-		transition: background 0.2s, color 0.2s, filter 0.2s;
-	}
-	.menu-link:hover {
-		filter: brightness(1.08);
-		opacity: 0.92;
-	}
-	.center {
-		display: flex;
-		flex-direction: column;
-		align-items: center;
-		justify-content: center;
-		min-height: 80vh;
-		background: #f6f6f6;
-	}
-	.logo-bg {
-		width: 100vw;
-		display: flex;
-		justify-content: center;
-		align-items: center;
-		margin-bottom: -2rem;
+	.landing {
+		min-height: calc(100vh - 4rem);
+		padding: 3rem clamp(1.5rem, 4vw, 4.5rem);
+		display: grid;
+		grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+		gap: clamp(2rem, 5vw, 4rem);
 		position: relative;
-		z-index: 0;
 	}
-	.logo-integrada {
-		max-width: 180px;
-		width: 100%;
-		height: auto;
-		filter: drop-shadow(0 4px 32px #ff8800aa);
-		background: transparent;
-		border-radius: 0;
-		box-shadow: none;
-		margin-top: 2rem;
-		margin-bottom: 0.5rem;
-	}
-	.card.glass {
-		background: rgba(255,255,255,0.7);
-		border-radius: 24px;
-		box-shadow: 0 8px 32px rgba(0,0,0,0.12);
-		padding: 2.5rem 2rem 2rem 2rem;
-		max-width: 420px;
-		margin: 2rem auto;
-		backdrop-filter: blur(8px);
-		border: 1px solid rgba(255,255,255,0.3);
-	}
-	.titulo-destaque, h1 {
-		color: #111;
-		text-shadow: 0 2px 8px rgba(0,0,0,0.12);
-		font-weight: 700;
-		text-align: center;
-		margin-bottom: 1.5rem;
-		letter-spacing: 0.5px;
-		font-size: 2em;
-	}
-	p {
-		margin-top: 1rem;
-		text-align: center;
-		font-weight: 500;
-		color: #222;
-		font-size: 1.1em;
-	}
-	button {
-		width: 100%;
-		margin-top: 1rem;
-		font-size: 1.1em;
-		background: linear-gradient(90deg, #bdbdbd 70%, #ff8800 100%);
-		color: #fff;
-		border: none;
-		font-weight: 600;
-		border-radius: 32px;
-		box-shadow: 0 2px 8px #bdbdbd;
-		transition: background 0.4s, transform 0.1s;
-		position: relative;
-		overflow: hidden;
-	}
-	button::after {
-		content: "";
+
+	.landing::after,
+	.landing::before {
+		content: '';
 		position: absolute;
-		left: 0; top: 0; right: 0; bottom: 0;
-		background: linear-gradient(120deg, #ff8800 0%, #bdbdbd 100%);
-		opacity: 0;
-		transition: opacity 0.4s;
+		border-radius: 50%;
+		filter: blur(120px);
+		opacity: 0.35;
 		z-index: 0;
 	}
-	button:hover::after {
-		opacity: 0.2;
+
+	.landing::before {
+		width: 520px;
+		height: 520px;
+		top: -160px;
+		right: -120px;
+		background: radial-gradient(circle at 30% 30%, rgba(99, 102, 241, 0.65), transparent 65%);
 	}
-	button:active {
-		transform: scale(0.97);
-		box-shadow: 0 1px 4px #bdbdbd;
+
+	.landing::after {
+		width: 420px;
+		height: 420px;
+		bottom: -180px;
+		left: -140px;
+		background: radial-gradient(circle at 40% 40%, rgba(249, 115, 22, 0.55), transparent 70%);
 	}
-	button > span {
+
+	.landing__hero,
+	.landing__menu {
 		position: relative;
 		z-index: 1;
+		background: var(--surface-glass);
+		border: 1px solid var(--border-soft);
+		box-shadow: var(--shadow-md);
+		border-radius: var(--radius-lg);
+		padding: clamp(1.8rem, 3vw, 2.8rem);
+		display: flex;
+		flex-direction: column;
+		gap: clamp(1.25rem, 2.4vw, 1.8rem);
 	}
-	@media (max-width: 600px) {
-		.card.glass {
-			padding: 1rem;
-			max-width: 95vw;
+
+	.landing__brand {
+		display: inline-flex;
+		align-items: center;
+		gap: 0.75rem;
+		background: rgba(15, 23, 42, 0.8);
+		padding: 0.75rem 1rem;
+		border-radius: var(--radius-sm);
+		box-shadow: inset 0 0 0 1px rgba(148, 163, 184, 0.25);
+		max-width: fit-content;
+	}
+
+	.landing__brand img {
+		width: 48px;
+		height: 48px;
+		object-fit: contain;
+		filter: drop-shadow(0 12px 28px rgba(59, 130, 246, 0.35));
+	}
+
+	.landing__brand strong {
+		font-weight: 700;
+		font-size: 1rem;
+		text-transform: uppercase;
+		letter-spacing: 0.12em;
+		color: var(--text-secondary);
+	}
+
+	h1 {
+		font-size: clamp(2rem, 4vw, 2.8rem);
+		line-height: 1.2;
+		font-weight: 700;
+		margin: 0;
+		color: var(--text-primary);
+	}
+
+	p {
+		margin: 0;
+		color: var(--text-secondary);
+		font-size: clamp(1rem, 1.2vw, 1.15rem);
+		line-height: 1.7;
+		max-width: 520px;
+	}
+
+	.landing__actions {
+		display: flex;
+		flex-wrap: wrap;
+		gap: 1rem;
+	}
+
+	.action {
+		display: inline-flex;
+		align-items: center;
+		justify-content: center;
+		padding: 0.9rem 1.8rem;
+		border-radius: 999px;
+		font-weight: 600;
+		letter-spacing: 0.01em;
+		text-decoration: none;
+		transition: transform 0.18s ease, box-shadow 0.2s ease, background 0.2s ease;
+		box-shadow: 0 14px 36px rgba(99, 102, 241, 0.25);
+	}
+
+	.action.primary {
+		background: linear-gradient(135deg, var(--brand-primary) 0%, var(--brand-secondary) 100%);
+		color: #fff;
+	}
+
+	.action.secondary {
+		background: rgba(99, 102, 241, 0.12);
+		color: var(--text-secondary);
+		box-shadow: inset 0 0 0 1px rgba(99, 102, 241, 0.35);
+	}
+
+	.action:hover {
+		transform: translateY(-3px);
+	}
+
+	.landing__meta {
+		display: grid;
+		grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+		gap: 0.75rem;
+	}
+
+	.landing__meta span {
+		display: inline-flex;
+		align-items: center;
+		gap: 0.45rem;
+		padding: 0.65rem 0.85rem;
+		border-radius: var(--radius-sm);
+		background: rgba(15, 23, 42, 0.7);
+		color: var(--text-muted);
+		font-size: 0.9rem;
+		box-shadow: inset 0 0 0 1px rgba(148, 163, 184, 0.2);
+	}
+
+	.landing__meta span::before {
+		content: '•';
+		color: var(--brand-highlight);
+		font-size: 1.4rem;
+		line-height: 0;
+	}
+
+	.landing__menu h2 {
+		margin: 0;
+		font-size: 1.4rem;
+		font-weight: 600;
+		color: var(--text-primary);
+	}
+
+	.landing__grid {
+		display: grid;
+		grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+		gap: 1.15rem;
+	}
+
+	.menu-card {
+		display: flex;
+		flex-direction: column;
+		gap: 0.4rem;
+		padding: 1.4rem 1.2rem;
+		border-radius: var(--radius-md);
+		background: rgba(15, 23, 42, 0.78);
+		border: 1px solid rgba(148, 163, 184, 0.2);
+		text-decoration: none;
+		color: inherit;
+		box-shadow: inset 0 0 0 1px rgba(99, 102, 241, 0.08);
+		transition: transform 0.18s ease, box-shadow 0.18s ease, border-color 0.18s ease;
+	}
+
+	.menu-card:hover {
+		transform: translateY(-4px);
+		border-color: rgba(99, 102, 241, 0.35);
+		box-shadow: 0 16px 38px rgba(99, 102, 241, 0.18);
+	}
+
+	.menu-card__title {
+		font-weight: 600;
+		color: var(--text-primary);
+		font-size: 1.05rem;
+	}
+
+	.menu-card small {
+		color: var(--text-muted);
+		line-height: 1.5;
+	}
+
+	@media (max-width: 720px) {
+		.landing {
+			padding: 2.25rem 1.25rem 3.5rem;
 		}
-		h1 {
-			font-size: 1.3em;
+
+		.landing__hero,
+		.landing__menu {
+			padding: 1.75rem 1.4rem;
 		}
-		.logo-integrada {
-			max-width: 80px;
+
+		.landing__meta {
+			grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
 		}
 	}
 </style>

@@ -1,160 +1,109 @@
 <script lang="ts">
   import { goto } from '$app/navigation';
+  import { page } from '$app/stores';
+  import { get } from 'svelte/store';
+  import type { PageData } from './$types';
 
   const logoUrl =
     'https://zcrzyhdzjanivracmoub.supabase.co/storage/v1/object/public/public-assets/logo5.png';
 
-  let nome = '';
+  export let data: PageData;
+  const supabase = data.supabase;
+
   let email = '';
-  let whatsapp = '';
   let senha = '';
-  let confirmarSenha = '';
-  let loading = false;
   let error = '';
+  let loading = false;
 
-  async function cadastrar() {
+  async function realizarLogin() {
     error = '';
-
-    if (senha !== confirmarSenha) {
-      error = 'As senhas não coincidem';
-      return;
-    }
-
     loading = true;
 
     try {
-      const response = await fetch('/api/cadastro', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-          nome,
-          email,
-          whatsapp,
-          senha
-        })
+      const { error: signInError } = await supabase.auth.signInWithPassword({
+        email,
+        password: senha
       });
 
-      const result = await response.json();
-
-      if (!result.success) {
-        throw new Error(result.error);
+      if (signInError) {
+        throw signInError;
       }
 
-      goto('/login');
-      alert('Cadastro realizado com sucesso! Confira sua caixa de entrada.');
+      const currentPage = get(page);
+      const redirectTo = currentPage.url.searchParams.get('redirectTo');
+      const destino = redirectTo && redirectTo.startsWith('/') ? redirectTo : '/painel';
+      await goto(destino, { replaceState: true });
     } catch (err: any) {
-      error = err.message || 'Erro ao criar conta';
+      error = err?.message ?? 'Não foi possível entrar. Tente novamente.';
     } finally {
       loading = false;
     }
   }
 </script>
 
-<div class="auth auth--signup">
+<div class="auth auth--login">
   <aside class="auth__panel">
     <div class="auth__brand">
       <img src={logoUrl} alt="FR Educacional" loading="lazy" />
       <span>Simulado CEA</span>
     </div>
 
-    <h1>Seu próximo simulado começa aqui.</h1>
+    <h1>Bem-vindo de volta</h1>
     <p>
-      Crie sua conta para acessar simulados completos, acompanhar métricas de evolução e receber
-      insights personalizados sobre os temas que exigem reforço.
+      Faça login para acompanhar seu desempenho e continuar os simulados personalizados que preparamos para você.
     </p>
 
     <ul class="auth__highlights">
-      <li>Simulados ilimitados e atualizados</li>
-      <li>Painel com indicadores de desempenho</li>
-      <li>Ambiente preparado para mobile e desktop</li>
+      <li>Resultados atualizados em tempo real</li>
+      <li>Histórico completo de simulados</li>
+      <li>Filtros por tema e inteligência de estudos</li>
     </ul>
   </aside>
 
   <section class="auth__card">
     <header>
-      <h2>Criar uma nova conta</h2>
-      <p>Preencha os dados abaixo para liberar o acesso à plataforma.</p>
+      <h2>Entrar na plataforma</h2>
+      <p>Acesse com seu e-mail cadastrado para retomar seus estudos.</p>
     </header>
 
     {#if error}
       <div class="auth__alert">{error}</div>
     {/if}
 
-    <form class="auth__form" on:submit|preventDefault={cadastrar}>
+    <form class="auth__form" on:submit|preventDefault={realizarLogin}>
       <label class="field">
-        <span>Nome completo</span>
-        <input
-          id="nome"
-          type="text"
-          bind:value={nome}
-          placeholder="Seu nome como deseja no certificado"
-          autocomplete="name"
-          required
-        />
-      </label>
-
-      <label class="field">
-        <span>E-mail</span>
+        <span>E-mail profissional</span>
         <input
           id="email"
           type="email"
           bind:value={email}
-          placeholder="seu@email.com"
+          placeholder="nome@empresa.com"
           autocomplete="email"
           required
         />
       </label>
 
       <label class="field">
-        <span>WhatsApp</span>
+        <span>Senha</span>
         <input
-          id="whatsapp"
-          type="tel"
-          bind:value={whatsapp}
-          placeholder="(11) 99999-9999"
-          autocomplete="tel"
+          id="senha"
+          type="password"
+          bind:value={senha}
+          placeholder="Mínimo 6 caracteres"
+          minlength="6"
+          autocomplete="current-password"
           required
         />
       </label>
 
-      <div class="auth__grid">
-        <label class="field">
-          <span>Senha</span>
-          <input
-            id="senha"
-            type="password"
-            bind:value={senha}
-            placeholder="Mínimo 6 caracteres"
-            minlength="6"
-            autocomplete="new-password"
-            required
-          />
-        </label>
-
-        <label class="field">
-          <span>Confirmar senha</span>
-          <input
-            id="confirmarSenha"
-            type="password"
-            bind:value={confirmarSenha}
-            placeholder="Digite a senha novamente"
-            minlength="6"
-            autocomplete="new-password"
-            required
-          />
-        </label>
-      </div>
-
       <button type="submit" disabled={loading}>
-        {loading ? 'Criando conta...' : 'Finalizar cadastro'}
+        {loading ? 'Validando dados...' : 'Entrar'}
       </button>
     </form>
 
     <footer>
-      <span>Já possui acesso?</span>
-      <a href="/login">Entrar com minha conta</a>
+      <span>Não tem uma conta?</span>
+      <a href="/cadastro">Crie agora mesmo</a>
     </footer>
   </section>
 </div>
@@ -186,7 +135,7 @@
     content: '';
     position: absolute;
     inset: 0;
-    background: radial-gradient(circle at 20% 20%, rgba(249, 115, 22, 0.25), transparent 60%);
+    background: radial-gradient(circle at 85% 15%, rgba(99, 102, 241, 0.25), transparent 60%);
     pointer-events: none;
   }
 
@@ -266,7 +215,7 @@
     display: flex;
     flex-direction: column;
     gap: 1.5rem;
-    max-width: 520px;
+    max-width: 440px;
     width: 100%;
     justify-self: center;
   }
@@ -297,12 +246,6 @@
     display: flex;
     flex-direction: column;
     gap: 1.1rem;
-  }
-
-  .auth__grid {
-    display: grid;
-    gap: 1rem;
-    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
   }
 
   .field {
@@ -377,7 +320,7 @@
     text-decoration: underline;
   }
 
-  @media (max-width: 920px) {
+  @media (max-width: 860px) {
     .auth {
       grid-template-columns: 1fr;
     }

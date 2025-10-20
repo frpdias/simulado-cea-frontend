@@ -1,3 +1,4 @@
+import adapterAuto from '@sveltejs/adapter-auto';
 import vercel from '@sveltejs/adapter-vercel';
 import { vitePreprocess } from '@sveltejs/vite-plugin-svelte';
 
@@ -5,7 +6,8 @@ import { vitePreprocess } from '@sveltejs/vite-plugin-svelte';
 const config = {
 	preprocess: vitePreprocess(),
 	kit: {
-		adapter: vercel()
+		// Use Vercel adapter only in deploy environments to avoid local Node version constraints.
+		adapter: process.env.VERCEL ? vercel({ runtime: 'nodejs20.x' }) : adapterAuto()
 	}
 };
 
