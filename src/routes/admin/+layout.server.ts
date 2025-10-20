@@ -90,17 +90,25 @@ export const load: LayoutServerLoad = async (event) => {
 					.maybeSingle();
 
 				if (perfilError) {
-					console.error('❌ Erro ao verificar perfil:', perfilError.message);
+					console.error('❌ Erro ao verificar perfil na tabela usuarios:', perfilError.message);
+					console.error('❌ Código do erro:', perfilError.code);
+					console.error('❌ Detalhes:', perfilError.details);
+					// Não bloquear por erro de DB, continuar verificação
 				} else {
-					console.log('📊 Perfil encontrado:', perfil);
+					console.log('📊 Perfil encontrado na tabela usuarios:', perfil);
 					
 					if (perfil?.papel && ehValorAdmin(perfil.papel)) {
 						autorizado = true;
 						console.log('✅ Autorizado por tabela usuarios - papel:', perfil.papel);
+					} else if (perfil === null) {
+						console.log('ℹ️ Usuário não encontrado na tabela usuarios');
+					} else {
+						console.log('ℹ️ Papel do usuário na tabela:', perfil?.papel || 'não definido');
 					}
 				}
 			} catch (dbError) {
-				console.error('❌ Erro de conexão com banco:', dbError);
+				console.error('❌ Erro de conexão com banco de dados:', dbError);
+				console.error('❌ Stack:', dbError instanceof Error ? dbError.stack : 'N/A');
 				// Não bloquear por erro de DB, continuar verificação
 			}
 		}
@@ -111,10 +119,12 @@ export const load: LayoutServerLoad = async (event) => {
 			console.log('  - Email na lista:', adminEmails.includes(email || ''));
 			console.log('  - Metadata indica admin:', metadataIndicaAdmin(user));
 			console.log('  - Lista de emails admin:', adminEmails);
+			console.log('  - User ID:', user.id);
 			
 			// Verificação de emergência: se não há emails admin configurados, permite qualquer usuário logado como admin temporário
 			if (adminEmails.length === 0) {
 				console.log('⚠️ MODO DE EMERGÊNCIA: Nenhum email admin configurado, permitindo acesso temporário');
+				console.log('⚠️ Configure ADMIN_ALLOWED_EMAILS nas variáveis de ambiente para segurança');
 				autorizado = true;
 			}
 		}
