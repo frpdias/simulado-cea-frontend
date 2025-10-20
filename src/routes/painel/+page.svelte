@@ -508,15 +508,20 @@
           Nenhum resultado registrado ainda. Finalize um simulado para visualizar seu desempenho.
         </p>
       {:else}
-        <div class="desempenho-grid">
-          <section class="aproveitamento-hero">
-            <header class="aproveitamento-head">
+        <div class="desempenho-compact">
+          <!-- Header compacto -->
+          <header class="aproveitamento-head">
+            <div class="head-content">
               <span class="aproveitamento-kicker">Painel de progresso</span>
               <h3>{nomePrincipal ? `${nomePrincipal.split(' ')[0]}, continue acelerando!` : 'Seu progresso atualizado'}</h3>
               <p>Consolidado com base nos simulados finalizados recentemente.</p>
-            </header>
+            </div>
+          </header>
 
-            <div class="aproveitamento-ring" role="img" aria-label={`Aproveitamento de ${aproveitamentoGeral}%`}>
+          <!-- Layout horizontal principal -->
+          <div class="aproveitamento-horizontal">
+            <!-- Ring de aproveitamento -->
+            <div class="aproveitamento-ring-compact" role="img" aria-label={`Aproveitamento de ${aproveitamentoGeral}%`}>
               <svg viewBox="0 0 200 200">
                 <defs>
                   <linearGradient id="ring-gradient" x1="0%" y1="0%" x2="100%" y2="100%">
@@ -545,90 +550,79 @@
               <div class="ring-value">
                 <strong>{aproveitamentoGeral}%</strong>
                 <span>Aproveitamento</span>
-                <small>{simuladosResumo.length} simulado(s) concluído(s)</small>
+                <small>{simuladosResumo.length} simulado(s)</small>
               </div>
             </div>
 
-            <div class="aproveitamento-stats">
-              <div class="aproveitamento-stat">
-                <span>Acertos</span>
-                <strong>{desempenhoTotalAcertos}</strong>
-                <small>Média {mediaAcertos} por simulado</small>
+            <!-- Stats horizontais -->
+            <div class="aproveitamento-stats-horizontal">
+              <div class="stat-row">
+                <div class="aproveitamento-stat">
+                  <span class="indicador ganho"></span>
+                  <div class="stat-content">
+                    <strong>{desempenhoTotalAcertos}</strong>
+                    <span>Acertos</span>
+                    <small>Média {mediaAcertos} por simulado</small>
+                  </div>
+                </div>
+                <div class="aproveitamento-stat">
+                  <span class="indicador neutro"></span>
+                  <div class="stat-content">
+                    <strong>{desempenhoTotalQuestoes}</strong>
+                    <span>Questões</span>
+                    <small>Média {mediaQuestoes} por simulado</small>
+                  </div>
+                </div>
+                <div class="aproveitamento-stat alerta">
+                  <span class="indicador alerta"></span>
+                  <div class="stat-content">
+                    <strong>{taxaErro}%</strong>
+                    <span>Taxa de erro</span>
+                    <small>{desempenhoTotalQuestoes - desempenhoTotalAcertos} incorretas</small>
+                  </div>
+                </div>
               </div>
-              <div class="aproveitamento-stat">
-                <span>Questões</span>
-                <strong>{desempenhoTotalQuestoes}</strong>
-                <small>Média {mediaQuestoes} por simulado</small>
-              </div>
-              <div class="aproveitamento-stat alerta">
-                <span>Taxa de erro</span>
-                <strong>{taxaErro}%</strong>
-                <small>{desempenhoTotalQuestoes - desempenhoTotalAcertos} respostas incorretas</small>
+
+              <!-- Cards de destaque -->
+              <div class="destaque-cards">
+                {#if melhorTema}
+                  <div class="destaque-card positivo">
+                    <div class="destaque-header">
+                      <span class="destaque-label">Maior desempenho</span>
+                      <div class="destaque-progress">
+                        <span style={`width: ${melhorTema.percentual}%`}></span>
+                      </div>
+                    </div>
+                    <strong>{melhorTema.tema}</strong>
+                    <small>{melhorTema.percentual}% de acerto</small>
+                  </div>
+                {/if}
+
+                {#if temaReforcar && temaReforcar !== melhorTema}
+                  <div class="destaque-card alerta">
+                    <div class="destaque-header">
+                      <span class="destaque-label">Foco para revisão</span>
+                      <div class="destaque-progress">
+                        <span style={`width: ${temaReforcar.percentual}%`}></span>
+                      </div>
+                    </div>
+                    <strong>{temaReforcar.tema}</strong>
+                    <small>{temaReforcar.percentual}% de acerto</small>
+                  </div>
+                {/if}
               </div>
             </div>
+          </div>
 
-            <div class="aproveitamento-actions">
-              <button type="button" on:click={() => goto('/simulados')}>
-                Iniciar novo simulado
-              </button>
-              <button type="button" class="ghost" on:click={() => goto('/painel?historico=1')}>
-                Visualizar histórico completo
-              </button>
-            </div>
-          </section>
-
-          <aside class="aproveitamento-side">
-            <div class="side-card summary">
-              <h4>Resumo rápido</h4>
-              <div class="timeline-item">
-                <span class="indicador ganho"></span>
-                <div class="timeline-copy">
-                  <strong>{desempenhoTotalAcertos}</strong>
-                  <small>acertos distribuídos em {simuladosResumo.length} simulado(s)</small>
-                </div>
-              </div>
-              <div class="timeline-item">
-                <span class="indicador neutro"></span>
-                <div class="timeline-copy">
-                  <strong>{desempenhoTotalQuestoes}</strong>
-                  <small>questões praticadas ao longo da jornada</small>
-                </div>
-              </div>
-              <div class="timeline-item">
-                <span class="indicador alerta"></span>
-                <div class="timeline-copy">
-                  <strong>{desempenhoTotalQuestoes - desempenhoTotalAcertos}</strong>
-                  <small>oportunidades para revisar conteúdos chave</small>
-                </div>
-              </div>
-            </div>
-
-            {#if melhorTema}
-              <div class="side-card destaque positivo">
-                <div class="side-card-head">
-                  <span>Maior desempenho</span>
-                  <strong>{melhorTema.tema}</strong>
-                </div>
-                <div class="progress">
-                  <span style={`width: ${melhorTema.percentual}%`}></span>
-                </div>
-                <small>{melhorTema.percentual}% de acerto</small>
-              </div>
-            {/if}
-
-            {#if temaReforcar && temaReforcar !== melhorTema}
-              <div class="side-card destaque alerta">
-                <div class="side-card-head">
-                  <span>Foco para revisão</span>
-                  <strong>{temaReforcar.tema}</strong>
-                </div>
-                <div class="progress">
-                  <span style={`width: ${temaReforcar.percentual}%`}></span>
-                </div>
-                <small>{temaReforcar.percentual}% de acerto</small>
-              </div>
-            {/if}
-          </aside>
+          <!-- Ações -->
+          <div class="aproveitamento-actions">
+            <button type="button" on:click={() => goto('/simulados')}>
+              Iniciar novo simulado
+            </button>
+            <button type="button" class="ghost" on:click={() => goto('/painel?historico=1')}>
+              Visualizar histórico completo
+            </button>
+          </div>
         </div>
       {/if}
     </section>
@@ -1157,11 +1151,20 @@
     flex-wrap: wrap;
   }
 
-  .desempenho-grid {
-    display: grid;
-    grid-template-columns: minmax(300px, 2fr) minmax(250px, 1fr);
-    gap: clamp(1.5rem, 4vw, 3rem);
-    align-items: stretch;
+  .desempenho-compact {
+    background: 
+      radial-gradient(circle at 10% 10%, rgba(99, 102, 241, 0.3), transparent 55%),
+      radial-gradient(circle at 90% 10%, rgba(20, 184, 166, 0.2), transparent 60%),
+      rgba(15, 23, 42, 0.95);
+    border-radius: clamp(1.5rem, 3vw, 2rem);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    box-shadow: 
+      0 25px 50px rgba(0, 0, 0, 0.25),
+      inset 0 1px 0 rgba(255, 255, 255, 0.1);
+    padding: clamp(1.5rem, 4vw, 2.5rem);
+    backdrop-filter: blur(20px);
+    position: relative;
+    overflow: hidden;
   }
 
   .desempenho-skeleton {
@@ -1188,28 +1191,55 @@
     animation: shimmer 1.2s infinite;
   }
 
-  .aproveitamento-hero {
-    background: 
-      radial-gradient(circle at 10% 10%, rgba(99, 102, 241, 0.3), transparent 55%),
-      radial-gradient(circle at 90% 10%, rgba(20, 184, 166, 0.2), transparent 60%),
-      rgba(15, 23, 42, 0.95);
-    border-radius: clamp(1.5rem, 3vw, 2rem);
-    border: 1px solid rgba(255, 255, 255, 0.15);
-    box-shadow: 
-      0 25px 50px rgba(0, 0, 0, 0.25),
-      inset 0 1px 0 rgba(255, 255, 255, 0.1);
-    padding: clamp(1.5rem, 3vw, 2.7rem);
-    display: flex;
-    flex-direction: column;
-    gap: clamp(1.25rem, 2.5vw, 2.2rem);
-    position: relative;
-    overflow: hidden;
+  .aproveitamento-horizontal {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: clamp(2rem, 5vw, 3rem);
+    align-items: start;
   }
 
   .aproveitamento-head {
     display: flex;
     flex-direction: column;
     gap: clamp(0.5rem, 1vw, 0.75rem);
+    margin-bottom: 1.5rem;
+  }
+
+  .head-content {
+    display: flex;
+    flex-direction: column;
+    gap: clamp(0.5rem, 1vw, 0.75rem);
+  }
+
+  .aproveitamento-ring-compact {
+    position: relative;
+    width: clamp(120px, 20vw, 150px);
+    height: clamp(120px, 20vw, 150px);
+    flex-shrink: 0;
+  }
+
+  .aproveitamento-ring-compact svg {
+    width: 100%;
+    height: 100%;
+    transform: rotate(-90deg);
+  }
+
+  .aproveitamento-stats-horizontal {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+  }
+
+  .stat-row {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    gap: 1rem;
+  }
+
+  .destaque-cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1rem;
   }
 
   .aproveitamento-kicker {
@@ -1243,11 +1273,7 @@
     margin: 0 auto;
   }
 
-  .aproveitamento-ring svg {
-    width: 100%;
-    height: 100%;
-    transform: rotate(-90deg);
-  }
+
 
   .ring-track {
     fill: none;
@@ -1299,24 +1325,18 @@
     text-align: center;
   }
 
-  .aproveitamento-stats {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
-    gap: clamp(0.75rem, 1.5vw, 1rem);
-  }
-
   .aproveitamento-stat {
     background: rgba(15, 23, 42, 0.9);
     border-radius: clamp(0.5rem, 1vw, 0.75rem);
-    padding: clamp(0.75rem, 1.5vw, 1.1rem);
+    padding: clamp(0.75rem, 1.5vw, 1rem);
     border: 1px solid rgba(255, 255, 255, 0.1);
     backdrop-filter: blur(10px);
     box-shadow: 
       inset 0 1px 0 rgba(255, 255, 255, 0.1),
       0 4px 12px rgba(0, 0, 0, 0.2);
     display: flex;
-    flex-direction: column;
-    gap: clamp(0.2rem, 0.4vw, 0.3rem);
+    align-items: center;
+    gap: 0.75rem;
     transition: all 0.3s ease;
   }
 
@@ -1328,25 +1348,121 @@
       0 8px 16px rgba(99, 102, 241, 0.2);
   }
 
-  .aproveitamento-stat span {
-    font-size: clamp(0.65rem, 1.3vw, 0.75rem);
-    letter-spacing: 0.08em;
+  .aproveitamento-stat .indicador {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+
+  .aproveitamento-stat .indicador.ganho {
+    background: linear-gradient(135deg, #34d399, #14b8a6);
+    box-shadow: 0 0 12px rgba(52, 211, 153, 0.4);
+  }
+
+  .aproveitamento-stat .indicador.neutro {
+    background: linear-gradient(135deg, #38bdf8, #6366f1);
+    box-shadow: 0 0 12px rgba(56, 189, 248, 0.4);
+  }
+
+  .aproveitamento-stat .indicador.alerta {
+    background: linear-gradient(135deg, #f97316, #ea580c);
+    box-shadow: 0 0 12px rgba(249, 115, 22, 0.4);
+  }
+
+  .aproveitamento-stat .stat-content {
+    display: flex;
+    flex-direction: column;
+    gap: 0.2rem;
+  }
+
+  .aproveitamento-stat .stat-content strong {
+    font-size: clamp(1.1rem, 2.2vw, 1.4rem);
+    color: var(--text-primary);
+    font-weight: 700;
+    line-height: 1;
+  }
+
+  .aproveitamento-stat .stat-content span {
+    font-size: clamp(0.7rem, 1.4vw, 0.8rem);
+    letter-spacing: 0.05em;
     text-transform: uppercase;
     color: var(--text-muted);
     font-weight: 600;
   }
 
-  .aproveitamento-stat strong {
-    font-size: clamp(1.2rem, 2.5vw, 1.6rem);
-    color: var(--text-primary);
-    font-weight: 700;
-    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
-  }
-
-  .aproveitamento-stat small {
-    font-size: clamp(0.7rem, 1.4vw, 0.85rem);
+  .aproveitamento-stat .stat-content small {
+    font-size: clamp(0.65rem, 1.3vw, 0.75rem);
     color: rgba(148, 163, 184, 0.75);
     line-height: 1.3;
+  }
+
+  .destaque-card {
+    background: rgba(15, 23, 42, 0.9);
+    border-radius: clamp(0.5rem, 1vw, 0.75rem);
+    padding: 1rem;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(10px);
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  .destaque-card.positivo {
+    border-color: rgba(52, 211, 153, 0.3);
+    box-shadow: 0 4px 12px rgba(52, 211, 153, 0.1);
+  }
+
+  .destaque-card.alerta {
+    border-color: rgba(249, 115, 22, 0.3);
+    box-shadow: 0 4px 12px rgba(249, 115, 22, 0.1);
+  }
+
+  .destaque-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  .destaque-label {
+    font-size: 0.7rem;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    font-weight: 600;
+  }
+
+  .destaque-progress {
+    width: 40px;
+    height: 4px;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 2px;
+    overflow: hidden;
+  }
+
+  .destaque-progress span {
+    display: block;
+    height: 100%;
+    background: linear-gradient(135deg, #34d399, #14b8a6);
+    border-radius: 2px;
+    transition: width 0.6s ease;
+  }
+
+  .destaque-card.alerta .destaque-progress span {
+    background: linear-gradient(135deg, #f97316, #ea580c);
+  }
+
+  .destaque-card strong {
+    font-size: 0.9rem;
+    color: var(--text-primary);
+    font-weight: 600;
+    line-height: 1.3;
+  }
+
+  .destaque-card small {
+    font-size: 0.75rem;
+    color: rgba(148, 163, 184, 0.75);
   }
 
   .aproveitamento-stat.alerta {
@@ -1457,49 +1573,7 @@
       inset 0 1px 0 rgba(255, 255, 255, 0.1);
   }
 
-  .side-card h4 {
-    margin: 0;
-    font-size: clamp(0.95rem, 1.9vw, 1.1rem);
-    color: var(--text-primary);
-    font-weight: 600;
-  }
 
-  .side-card-head span {
-    font-size: clamp(0.7rem, 1.4vw, 0.75rem);
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
-    color: var(--text-muted);
-    font-weight: 600;
-  }
-
-  .side-card-head strong {
-    display: block;
-    color: var(--text-primary);
-    font-weight: 700;
-    font-size: clamp(0.9rem, 1.8vw, 1rem);
-    margin-top: 0.25rem;
-  }
-
-  .progress {
-    position: relative;
-    width: 100%;
-    height: 6px;
-    border-radius: 999px;
-    background: rgba(148, 163, 184, 0.2);
-    overflow: hidden;
-  }
-
-  .progress span {
-    position: absolute;
-    inset: 0;
-    border-radius: inherit;
-    background: linear-gradient(135deg, rgba(59, 130, 246, 0.9), rgba(56, 189, 248, 0.9));
-    transition: width 0.6s cubic-bezier(0.4, 0, 0.2, 1);
-  }
-
-  .side-card.destaque.alerta .progress span {
-    background: linear-gradient(135deg, rgba(249, 115, 22, 0.85), rgba(239, 68, 68, 0.9));
-  }
 
   .timeline-item {
     display: flex;
@@ -1538,26 +1612,7 @@
     box-shadow: 0 0 8px rgba(249, 115, 22, 0.5);
   }
 
-  .timeline-copy {
-    display: flex;
-    flex-direction: column;
-    gap: clamp(0.15rem, 0.3vw, 0.2rem);
-    min-width: 0;
-    flex: 1;
-  }
 
-  .timeline-copy strong {
-    font-size: clamp(1rem, 2vw, 1.15rem);
-    color: var(--text-primary);
-    font-weight: 700;
-    line-height: 1;
-  }
-
-  .timeline-copy small {
-    font-size: clamp(0.8rem, 1.6vw, 0.9rem);
-    color: rgba(148, 163, 184, 0.8);
-    line-height: 1.4;
-  }
 
   .card h2 {
     margin-top: 0;
@@ -1934,9 +1989,19 @@
 
   /* Responsive Design */
   @media (max-width: 1200px) {
-    .desempenho-grid {
+    .aproveitamento-horizontal {
       grid-template-columns: 1fr;
       gap: 2rem;
+      text-align: center;
+    }
+
+    .stat-row {
+      grid-template-columns: 1fr;
+      gap: 0.75rem;
+    }
+
+    .destaque-cards {
+      grid-template-columns: 1fr;
     }
   }
 
@@ -1984,6 +2049,27 @@
 
     .hero-card {
       padding: 1.5rem 1rem;
+    }
+
+    .desempenho-compact {
+      padding: 1.5rem 1rem;
+    }
+
+    .aproveitamento-horizontal {
+      gap: 1.5rem;
+    }
+
+    .aproveitamento-ring-compact {
+      width: 100px;
+      height: 100px;
+    }
+
+    .aproveitamento-stat {
+      padding: 0.75rem;
+    }
+
+    .destaque-card {
+      padding: 0.75rem;
     }
 
     .hero-user {
