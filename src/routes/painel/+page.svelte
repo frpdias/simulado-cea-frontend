@@ -1,7 +1,6 @@
 <script lang="ts">
   import { onMount } from 'svelte';
   import { goto } from '$app/navigation';
-  import RadarChart from '$lib/RadarChart.svelte';
   import type { PageData } from './$types';
 
   interface Usuario {
