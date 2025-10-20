@@ -51,8 +51,14 @@ export const load: LayoutServerLoad = async (event) => {
 		
 		console.log('✅ Supabase client disponível');
 		
-		const session = await event.locals.getSession();
-		console.log('🔐 Sessão:', session ? 'encontrada' : 'não encontrada');
+		let session;
+		try {
+			session = await event.locals.getSession();
+			console.log('🔐 Sessão:', session ? 'encontrada' : 'não encontrada');
+		} catch (sessionError) {
+			console.error('❌ Erro ao obter sessão:', sessionError);
+			throw error(500, 'Erro ao verificar autenticação.');
+		}
 
 		if (!session) {
 			const redirectTo = encodeURIComponent(event.url.pathname);
@@ -68,15 +74,23 @@ export const load: LayoutServerLoad = async (event) => {
 		let autorizado = false;
 
 		// Verificação 1: Email na lista
-		if (email && adminEmails.includes(email)) {
-			autorizado = true;
-			console.log('✅ Autorizado por email');
+		try {
+			if (email && adminEmails.includes(email)) {
+				autorizado = true;
+				console.log('✅ Autorizado por email');
+			}
+		} catch (emailError) {
+			console.error('❌ Erro na verificação de email:', emailError);
 		}
 
 		// Verificação 2: Metadata
-		if (!autorizado && metadataIndicaAdmin(user)) {
-			autorizado = true;
-			console.log('✅ Autorizado por metadata');
+		try {
+			if (!autorizado && metadataIndicaAdmin(user)) {
+				autorizado = true;
+				console.log('✅ Autorizado por metadata');
+			}
+		} catch (metadataError) {
+			console.error('❌ Erro na verificação de metadata:', metadataError);
 		}
 
 		// Verificação 3: Tabela usuarios
@@ -130,6 +144,7 @@ export const load: LayoutServerLoad = async (event) => {
 		}
 
 		if (!autorizado) {
+			console.log('🚫 Acesso definitivamente negado');
 			throw error(403, 'Acesso permitido apenas a administradores.');
 		}
 
@@ -144,14 +159,17 @@ export const load: LayoutServerLoad = async (event) => {
 			}
 		};
 	} catch (err) {
-		console.error('❌ Erro no layout admin:', err);
+		console.error('❌ Erro crítico no layout admin:', err);
+		console.error('❌ Stack trace:', err instanceof Error ? err.stack : 'N/A');
 		
 		// Se for um erro de redirect ou error do SvelteKit, re-throw
 		if (err && typeof err === 'object' && 'status' in err) {
+			console.log('↩️ Re-throwing SvelteKit error:', err);
 			throw err;
 		}
 		
 		// Para outros erros, logar e retornar erro 500
-		throw error(500, `Erro interno do servidor: ${err}`);
+		console.error('🔥 Erro inesperado, retornando 500');
+		throw error(500, `Erro interno do servidor: ${err instanceof Error ? err.message : String(err)}`);
 	}
 };
