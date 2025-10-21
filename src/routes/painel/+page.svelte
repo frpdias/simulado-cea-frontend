@@ -557,9 +557,9 @@
           </button>
         </div>
       {:else}
-        <div class="performance-grid-new">
-          <!-- Left Column: Progress Ring and Stats Below -->
-          <div class="performance-main-new">
+        <div class="performance-grid-horizontal">
+          <!-- Left: Progress Ring -->
+          <div class="performance-ring-section">
             <div class="progress-section">
               <div class="progress-ring-container">
                 <div class="progress-ring" role="img" aria-label={`Aproveitamento de ${aproveitamentoGeral}%`}>
@@ -592,34 +592,44 @@
                 </div>
               </div>
             </div>
+          </div>
 
-            <!-- Small Stats Cards Below Ring -->
-            <div class="small-stats-grid">
-              <div class="small-stat-card success">
-                <div class="small-stat-number">{desempenhoTotalAcertos}</div>
-                <div class="small-stat-label">Acertos</div>
+          <!-- Right: Stats Cards -->
+          <div class="performance-stats-section">
+            <div class="horizontal-stats-grid">
+              <div class="stat-bullet success">
+                <div class="stat-bullet-indicator"></div>
+                <div class="stat-bullet-content">
+                  <div class="stat-bullet-number">{desempenhoTotalAcertos}</div>
+                  <div class="stat-bullet-label">Acertos</div>
+                </div>
               </div>
 
-              <div class="small-stat-card neutral">
-                <div class="small-stat-number">{desempenhoTotalRespondidas}</div>
-                <div class="small-stat-label">Questões</div>
+              <div class="stat-bullet neutral">
+                <div class="stat-bullet-indicator"></div>
+                <div class="stat-bullet-content">
+                  <div class="stat-bullet-number">{desempenhoTotalRespondidas}</div>
+                  <div class="stat-bullet-label">Questões</div>
+                </div>
               </div>
 
-              <div class="small-stat-card warning">
-                <div class="small-stat-number">{taxaErro}%</div>
-                <div class="small-stat-label">Taxa de erro</div>
+              <div class="stat-bullet warning">
+                <div class="stat-bullet-indicator"></div>
+                <div class="stat-bullet-content">
+                  <div class="stat-bullet-number">{taxaErro}%</div>
+                  <div class="stat-bullet-label">Taxa de erro</div>
+                </div>
               </div>
             </div>
           </div>
+        </div>
 
-          <!-- Right Column: Insights and Actions -->
-          <div class="performance-sidebar">
-            <!-- Performance Insights -->
-            <div class="insights-section">
-              <h3>Insights de Performance</h3>
-              <div class="insights-container">
-                <div class="insights-grid-vertical">
-                {#if melhorTema}
+        <!-- Insights Section Below -->
+        <div class="insights-section">
+          <h3>Insights de Performance</h3>
+          <div class="insights-container">
+            <div class="insights-grid-horizontal">
+              {#if melhorTema}
                   <div class="insight-card best-performance">
                     <div class="insight-header">
                       <div class="insight-icon">�</div>
@@ -653,49 +663,47 @@
                     </div>
                   </div>
                 {/if}
-                </div>
-              </div>
-            </div>
-
-            <!-- Action Buttons -->
-            <div class="performance-actions">
-              <button class="btn-primary large" on:click={() => goto('/simulados')}>
-                <span class="btn-icon">
-                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <path d="M4.5 16.5c-1.5 1.5-1.5 4.5 0 6s4.5 1.5 6 0L16 17l-4-4L4.5 16.5z"/>
-                    <path d="M13.5 6.5a4.95 4.95 0 0 1 7 7l-2 2"/>
-                    <path d="M9 11l-4 4"/>
-                    <path d="M5 21l3-3"/>
-                  </svg>
-                </span>
-                Iniciar novo simulado
-              </button>
-              <button class="btn-secondary large" on:click={() => goto('/painel?historico=1')}>
-                <span class="btn-icon">
-                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <path d="M3 3v5h5"/>
-                    <path d="M3.05 13A9 9 0 1 0 6 5.3L3 8"/>
-                    <path d="M12 7v5l4 2"/>
-                  </svg>
-                </span>
-                Ver histórico completo
-              </button>
-              {#if ehAdmin}
-                <button class="btn-admin large" on:click={() => goto('/admin')}>
-                  <span class="btn-icon">
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                      <rect x="3" y="3" width="18" height="18" rx="2"/>
-                      <path d="M9 9h6v6H9z"/>
-                      <path d="M21 14H3"/>
-                      <path d="M14 3v18"/>
-                    </svg>
-                  </span>
-                  Painel de Administração
-                </button>
-              {/if}
             </div>
           </div>
         </div>
+
+        <!-- Action Buttons -->
+          <div class="performance-actions">
+            <button class="btn-primary large" on:click={() => goto('/simulados')}>
+              <span class="btn-icon">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M4.5 16.5c-1.5 1.5-1.5 4.5 0 6s4.5 1.5 6 0L16 17l-4-4L4.5 16.5z"/>
+                  <path d="M13.5 6.5a4.95 4.95 0 0 1 7 7l-2 2"/>
+                  <path d="M9 11l-4 4"/>
+                  <path d="M5 21l3-3"/>
+                </svg>
+              </span>
+              Iniciar novo simulado
+            </button>
+            <button class="btn-secondary large" on:click={() => goto('/painel?historico=1')}>
+              <span class="btn-icon">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M3 3v5h5"/>
+                  <path d="M3.05 13A9 9 0 1 0 6 5.3L3 8"/>
+                  <path d="M12 7v5l4 2"/>
+                </svg>
+              </span>
+              Ver histórico completo
+            </button>
+            {#if ehAdmin}
+              <button class="btn-admin large" on:click={() => goto('/admin')}>
+                <span class="btn-icon">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <rect x="3" y="3" width="18" height="18" rx="2"/>
+                    <path d="M9 9h6v6H9z"/>
+                    <path d="M21 14H3"/>
+                    <path d="M14 3v18"/>
+                  </svg>
+                </span>
+                Painel de Administração
+              </button>
+            {/if}
+          </div>
       {/if}
     </section>
 
@@ -1387,6 +1395,102 @@
     margin-bottom: clamp(1rem, 3vw, 2rem);
   }
 
+  .performance-grid-horizontal {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: clamp(1.5rem, 3vw, 2.5rem);
+    align-items: center;
+    margin-bottom: clamp(1rem, 2vw, 1.5rem);
+  }
+
+  .performance-ring-section {
+    display: flex;
+    justify-content: center;
+  }
+
+  .performance-stats-section {
+    display: flex;
+    align-items: center;
+  }
+
+  .horizontal-stats-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    width: 100%;
+  }
+
+  .stat-bullet {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.75rem 1rem;
+    background: rgba(15, 23, 42, 0.6);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 0.75rem;
+    transition: all 0.3s ease;
+  }
+
+  .stat-bullet:hover {
+    transform: translateX(4px);
+    background: rgba(15, 23, 42, 0.8);
+    border-color: rgba(255, 255, 255, 0.2);
+  }
+
+  .stat-bullet-indicator {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+
+  .stat-bullet.success .stat-bullet-indicator {
+    background: linear-gradient(135deg, #34d399, #14b8a6);
+    box-shadow: 0 0 12px rgba(52, 211, 153, 0.4);
+  }
+
+  .stat-bullet.neutral .stat-bullet-indicator {
+    background: linear-gradient(135deg, #38bdf8, #6366f1);
+    box-shadow: 0 0 12px rgba(56, 189, 248, 0.4);
+  }
+
+  .stat-bullet.warning .stat-bullet-indicator {
+    background: linear-gradient(135deg, #f97316, #ea580c);
+    box-shadow: 0 0 12px rgba(249, 115, 22, 0.4);
+  }
+
+  .stat-bullet-content {
+    display: flex;
+    flex-direction: column;
+    gap: 0.125rem;
+  }
+
+  .stat-bullet-number {
+    font-size: clamp(1.25rem, 2.5vw, 1.5rem);
+    font-weight: 700;
+    color: var(--text-primary);
+    line-height: 1;
+  }
+
+  .stat-bullet-label {
+    font-size: clamp(0.75rem, 1.5vw, 0.85rem);
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    font-weight: 600;
+  }
+
+  .insights-grid-horizontal {
+    display: flex;
+    gap: 1rem;
+    flex-wrap: wrap;
+  }
+
+  .insights-grid-horizontal .insight-card {
+    flex: 1;
+    min-width: 280px;
+  }
+
   .performance-grid-new {
     display: grid;
     grid-template-columns: 1fr 300px;
@@ -1433,8 +1537,8 @@
 
   .progress-ring {
     position: relative;
-    width: clamp(160px, 22vw, 220px);
-    height: clamp(160px, 22vw, 220px);
+    width: clamp(140px, 18vw, 180px);
+    height: clamp(140px, 18vw, 180px);
   }
 
   .progress-ring svg {
@@ -1689,11 +1793,11 @@
      INSIGHTS SECTION
   ============================================== */
   .insights-section {
-    margin-top: 0.75rem;
+    margin-top: 0.5rem;
   }
 
   .insights-section h3 {
-    margin: 0 0 0.75rem 0;
+    margin: 0 0 0.5rem 0;
     font-size: 1rem;
     font-weight: 700;
     color: var(--text-primary);
@@ -1702,7 +1806,7 @@
   .insights-grid {
     display: flex;
     flex-direction: column;
-    gap: 0.75rem;
+    gap: 0.5rem;
   }
 
   .insights-container {
@@ -3021,7 +3125,32 @@
       justify-content: center;
     }
 
-    /* New layout responsive - mobile */
+    /* New horizontal layout responsive - tablet */
+    .performance-grid-horizontal {
+      grid-template-columns: 1fr;
+      gap: 1.5rem;
+    }
+
+    .performance-ring-section {
+      justify-content: center;
+    }
+
+    .horizontal-stats-grid {
+      flex-direction: row;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+    }
+
+    .stat-bullet {
+      flex: 1;
+      min-width: 140px;
+    }
+
+    .insights-grid-horizontal {
+      flex-direction: column;
+    }
+
+    /* Old layout responsive - mobile */
     .small-stats-grid {
       grid-template-columns: 1fr;
       gap: 1rem;
@@ -3081,6 +3210,23 @@
     .insights-grid-horizontal {
       grid-template-columns: 1fr;
       gap: 1rem;
+    }
+
+    /* Mobile horizontal layout */
+    .performance-grid-horizontal {
+      grid-template-columns: 1fr;
+      gap: 1rem;
+      text-align: center;
+    }
+
+    .horizontal-stats-grid {
+      flex-direction: column;
+      gap: 0.75rem;
+    }
+
+    .stat-bullet {
+      justify-content: center;
+      text-align: center;
     }
 
     .insight-card {
