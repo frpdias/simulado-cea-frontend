@@ -918,33 +918,32 @@
   .top-logo {
     display: flex;
     align-items: center;
-    justify-content: center;
+    justify-content: flex-start;
     gap: clamp(0.75rem, 1.5vw, 1rem);
     margin-bottom: clamp(1rem, 2vw, 1.5rem);
-    padding: clamp(0.75rem, 1.5vw, 1rem);
-    background: rgba(15, 23, 42, 0.9);
-    border-radius: 999px;
-    border: 1px solid rgba(255, 255, 255, 0.15);
-    backdrop-filter: blur(15px);
-    box-shadow: 
-      inset 0 1px 0 rgba(255, 255, 255, 0.1),
-      0 8px 24px rgba(0, 0, 0, 0.3);
+    padding: clamp(0.5rem, 1vw, 0.75rem);
+    /* Removendo o fundo azul escuro */
+    background: transparent;
+    border-radius: 0;
+    border: none;
+    backdrop-filter: none;
+    box-shadow: none;
   }
 
   .top-logo img {
-    width: clamp(60px, 10vw, 100px);
-    height: clamp(60px, 10vw, 100px);
+    width: clamp(50px, 8vw, 80px);
+    height: clamp(50px, 8vw, 80px);
     object-fit: contain;
     filter: drop-shadow(0 8px 16px rgba(59, 130, 246, 0.6)) brightness(1.2) contrast(1.3);
     background: rgba(255, 255, 255, 0.1);
     backdrop-filter: blur(10px);
-    padding: 8px;
-    border-radius: 16px;
+    padding: 6px;
+    border-radius: 12px;
     transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
   }
 
   .top-logo span {
-    font-size: clamp(1rem, 2vw, 1.25rem);
+    font-size: clamp(0.9rem, 1.8vw, 1.1rem);
     letter-spacing: 0.1em;
     color: var(--text-primary);
     text-transform: uppercase;
@@ -2927,17 +2926,17 @@
   ============================================== */
   @media (max-width: 1200px) {
     .top-logo {
-      margin-bottom: 1rem;
-      padding: 0.75rem;
+      margin-bottom: 0.75rem;
+      padding: 0.5rem;
     }
 
     .top-logo img {
-      width: clamp(50px, 8vw, 80px);
-      height: clamp(50px, 8vw, 80px);
+      width: clamp(45px, 7vw, 70px);
+      height: clamp(45px, 7vw, 70px);
     }
 
     .top-logo span {
-      font-size: clamp(0.9rem, 1.8vw, 1.1rem);
+      font-size: clamp(0.8rem, 1.6vw, 1rem);
     }
 
     .performance-grid {
