@@ -444,6 +444,12 @@
         <div class="hero-overlay overlay-c"></div>
       </div>
 
+      <!-- Logo no topo -->
+      <div class="top-logo">
+        <img src={logoFrUrl} alt="FullStack Educacional" loading="lazy" />
+        <span>PAINEL DO USUÁRIO</span>
+      </div>
+
       <div class="hero-header">
         <div class="hero-user">
           <div class="hero-avatar">
@@ -463,10 +469,6 @@
         </div>
 
         <div class="hero-actions">
-          <div class="hero-brand">
-            <img src={logoFrUrl} alt="FullStack Educacional" loading="lazy" />
-            <span>Simulado CEA</span>
-          </div>
           <div class="action-buttons">
             <span class={`status-pill ${statusClass}`}>
               Status: {statusTexto}
@@ -908,6 +910,52 @@
     0%, 100% { transform: translateY(0) scale(1); }
     33% { transform: translateY(-10px) scale(1.02); }
     66% { transform: translateY(10px) scale(0.98); }
+  }
+
+  /* ======================
+     TOP LOGO STYLES
+     ====================== */
+  .top-logo {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: clamp(0.75rem, 1.5vw, 1rem);
+    margin-bottom: clamp(1rem, 2vw, 1.5rem);
+    padding: clamp(0.75rem, 1.5vw, 1rem);
+    background: rgba(15, 23, 42, 0.9);
+    border-radius: 999px;
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    backdrop-filter: blur(15px);
+    box-shadow: 
+      inset 0 1px 0 rgba(255, 255, 255, 0.1),
+      0 8px 24px rgba(0, 0, 0, 0.3);
+  }
+
+  .top-logo img {
+    width: clamp(60px, 10vw, 100px);
+    height: clamp(60px, 10vw, 100px);
+    object-fit: contain;
+    filter: drop-shadow(0 8px 16px rgba(59, 130, 246, 0.6)) brightness(1.2) contrast(1.3);
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(10px);
+    padding: 8px;
+    border-radius: 16px;
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .top-logo span {
+    font-size: clamp(1rem, 2vw, 1.25rem);
+    letter-spacing: 0.1em;
+    color: var(--text-primary);
+    text-transform: uppercase;
+    font-weight: 700;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+  }
+
+  .top-logo:hover img {
+    transform: scale(1.1) rotate(5deg);
+    filter: drop-shadow(0 12px 24px rgba(59, 130, 246, 0.8)) brightness(1.3) contrast(1.4);
+    box-shadow: 0 0 25px rgba(59, 130, 246, 0.5);
   }
 
   .hero-header {
@@ -2878,6 +2926,20 @@
      RESPONSIVE DESIGN
   ============================================== */
   @media (max-width: 1200px) {
+    .top-logo {
+      margin-bottom: 1rem;
+      padding: 0.75rem;
+    }
+
+    .top-logo img {
+      width: clamp(50px, 8vw, 80px);
+      height: clamp(50px, 8vw, 80px);
+    }
+
+    .top-logo span {
+      font-size: clamp(0.9rem, 1.8vw, 1.1rem);
+    }
+
     .performance-grid {
       grid-template-columns: 1fr;
       gap: 2rem;
