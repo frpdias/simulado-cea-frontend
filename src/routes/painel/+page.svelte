@@ -841,18 +841,18 @@
   .container {
     max-width: 1200px;
     margin: 0 auto;
-    padding: clamp(1rem, 3vw, 2rem) clamp(0.75rem, 4vw, 2.4rem) 4rem;
+    padding: clamp(0.5rem, 2vw, 1rem) clamp(0.75rem, 4vw, 2.4rem) 2rem;
   }
 
   .topo {
-    margin-bottom: clamp(2rem, 4vw, 2.5rem);
+    margin-bottom: clamp(1rem, 2vw, 1.5rem);
   }
 
   .hero-card {
     position: relative;
     overflow: hidden;
     border-radius: clamp(1rem, 2vw, 1.5rem);
-    padding: clamp(1.5rem, 4vw, 2.75rem);
+    padding: clamp(1rem, 3vw, 1.75rem);
     background: 
       linear-gradient(135deg, rgba(29, 78, 216, 0.95) 0%, rgba(42, 67, 171, 0.9) 40%, rgba(15, 118, 110, 0.85) 100%);
     border: 1px solid rgba(255, 255, 255, 0.1);
@@ -920,8 +920,8 @@
     align-items: center;
     justify-content: flex-start;
     gap: clamp(0.75rem, 1.5vw, 1rem);
-    margin-bottom: clamp(1rem, 2vw, 1.5rem);
-    padding: clamp(0.5rem, 1vw, 0.75rem);
+    margin-bottom: clamp(0.5rem, 1vw, 0.75rem);
+    padding: clamp(0.25rem, 0.5vw, 0.5rem);
     /* Removendo o fundo azul escuro */
     background: transparent;
     border-radius: 0;
@@ -961,11 +961,11 @@
     display: flex;
     align-items: flex-start;
     justify-content: space-between;
-    gap: clamp(1rem, 3vw, 1.75rem);
+    gap: clamp(0.75rem, 2vw, 1.25rem);
     flex-wrap: wrap;
     position: relative;
     z-index: 1;
-    margin-bottom: clamp(1.5rem, 3vw, 2rem);
+    margin-bottom: clamp(0.75rem, 2vw, 1rem);
   }
 
   .hero-user {
@@ -1254,7 +1254,7 @@
   main {
     display: flex;
     flex-direction: column;
-    gap: clamp(1.25rem, 3vw, 1.65rem);
+    gap: clamp(0.75rem, 2vw, 1rem);
   }
 
   .card {
@@ -1267,7 +1267,7 @@
     box-shadow: 
       0 25px 50px rgba(0, 0, 0, 0.25),
       inset 0 1px 0 rgba(255, 255, 255, 0.1);
-    padding: clamp(1.5rem, 3vw, 2.6rem);
+    padding: clamp(1rem, 2vw, 1.75rem);
     color: var(--text-secondary);
     transition: all 0.3s ease;
   }
@@ -1282,7 +1282,7 @@
   .card.desempenho {
     display: flex;
     flex-direction: column;
-    gap: clamp(1.25rem, 2.5vw, 1.5rem);
+    gap: clamp(0.75rem, 2vw, 1rem);
   }
 
   .desempenho-header {
@@ -1298,7 +1298,7 @@
   ============================================== */
   .main-content {
     width: 100%;
-    margin-top: clamp(1.5rem, 3vw, 2rem);
+    margin-top: clamp(0.75rem, 2vw, 1rem);
   }
 
   .performance-dashboard {
@@ -1308,7 +1308,7 @@
     backdrop-filter: blur(20px);
     border: 1px solid rgba(255, 255, 255, 0.1);
     border-radius: clamp(1rem, 2vw, 1.5rem);
-    padding: clamp(1.25rem, 2.5vw, 1.75rem);
+    padding: clamp(0.75rem, 2vw, 1.25rem);
     box-shadow: 
       0 20px 40px rgba(0, 0, 0, 0.2),
       inset 0 1px 0 rgba(255, 255, 255, 0.1);
@@ -1333,8 +1333,8 @@
     display: flex;
     align-items: flex-start;
     justify-content: space-between;
-    margin-bottom: clamp(1.25rem, 2.5vw, 1.75rem);
-    gap: 1.5rem;
+    margin-bottom: clamp(0.75rem, 2vw, 1rem);
+    gap: 1rem;
   }
 
   .header-content h2 {
@@ -1382,30 +1382,30 @@
   .performance-grid {
     display: grid;
     grid-template-columns: 1.2fr 1fr;
-    gap: clamp(2rem, 4vw, 3rem);
+    gap: clamp(1rem, 3vw, 2rem);
     align-items: start;
-    margin-bottom: clamp(2rem, 4vw, 3rem);
+    margin-bottom: clamp(1rem, 3vw, 2rem);
   }
 
   .performance-grid-new {
     display: grid;
     grid-template-columns: 1fr 300px;
-    gap: clamp(1.5rem, 3vw, 2rem);
+    gap: clamp(1rem, 2vw, 1.5rem);
     align-items: start;
-    margin-bottom: clamp(1.5rem, 3vw, 2rem);
+    margin-bottom: clamp(1rem, 2vw, 1.5rem);
   }
 
   .performance-main-new {
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 1.5rem;
+    gap: 1rem;
   }
 
   .performance-sidebar {
     display: flex;
     flex-direction: column;
-    gap: 1.5rem;
+    gap: 1rem;
   }
 
   /* ==============================================
@@ -1414,7 +1414,7 @@
   .performance-main {
     display: flex;
     flex-direction: column;
-    gap: 2rem;
+    gap: 1.25rem;
   }
 
   .progress-section {
@@ -1428,7 +1428,7 @@
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 1.25rem;
+    gap: 0.75rem;
   }
 
   .progress-ring {
@@ -1560,7 +1560,7 @@
   .performance-stats {
     display: flex;
     flex-direction: column;
-    gap: 2rem;
+    gap: 1rem;
   }
 
   .stats-grid {
