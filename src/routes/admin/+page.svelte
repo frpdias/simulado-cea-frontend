@@ -6,18 +6,36 @@
   
   // Usar data do usuário administrador
   $: userInfo = data.user;
+  $: usuarios = data.usuarios || [];
+  $: stats = data.stats || { totalUsuarios: 0, totalSimulados: 0, usuariosAtivos: 0 };
   
-  let stats = {
-    usuarios: 0,
-    simulados: 0,
-    status: 'online'
-  };
+  function formatDate(dateString: string) {
+    if (!dateString) return 'Nunca';
+    return new Date(dateString).toLocaleDateString('pt-BR', {
+      day: '2-digit',
+      month: '2-digit',
+      year: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit'
+    });
+  }
   
-  onMount(async () => {
-    // Carregar estatísticas (implementar quando necessário)
-    stats.usuarios = '--';
-    stats.simulados = '--';
-  });
+  function getStatusClass(lastSignIn: string) {
+    if (!lastSignIn) return 'status-never';
+    const daysSince = (Date.now() - new Date(lastSignIn).getTime()) / (1000 * 60 * 60 * 24);
+    if (daysSince <= 7) return 'status-active';
+    if (daysSince <= 30) return 'status-recent';
+    return 'status-inactive';
+  }
+  
+  function getStatusText(lastSignIn: string) {
+    if (!lastSignIn) return 'Nunca acessou';
+    const daysSince = (Date.now() - new Date(lastSignIn).getTime()) / (1000 * 60 * 60 * 24);
+    if (daysSince <= 1) return 'Online';
+    if (daysSince <= 7) return 'Ativo';
+    if (daysSince <= 30) return 'Recente';
+    return 'Inativo';
+  }
 </script>
 
 <svelte:head>
@@ -35,7 +53,7 @@
       <div class="stat-icon">👥</div>
       <div class="stat-content">
         <h3>Usuários</h3>
-        <p class="stat-number">{stats.usuarios}</p>
+        <p class="stat-number">{stats.totalUsuarios}</p>
         <span class="stat-label">Total de usuários</span>
       </div>
     </div>
@@ -44,7 +62,7 @@
       <div class="stat-icon">📊</div>
       <div class="stat-content">
         <h3>Simulados</h3>
-        <p class="stat-number">{stats.simulados}</p>
+        <p class="stat-number">{stats.totalSimulados}</p>
         <span class="stat-label">Simulados realizados</span>
       </div>
     </div>
@@ -52,10 +70,75 @@
     <div class="stat-card">
       <div class="stat-icon">🟢</div>
       <div class="stat-content">
-        <h3>Sistema</h3>
-        <p class="stat-number">✅</p>
-        <span class="stat-label">Status: Online</span>
+        <h3>Ativos</h3>
+        <p class="stat-number">{stats.usuariosAtivos}</p>
+        <span class="stat-label">Usuários ativos</span>
       </div>
+    </div>
+    
+    <div class="stat-card">
+      <div class="stat-icon">⚡</div>
+      <div class="stat-content">
+        <h3>Sistema</h3>
+        <p class="stat-number status-online">Online</p>
+        <span class="stat-label">Status do sistema</span>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Lista de Usuários -->
+  <div class="users-section">
+    <div class="section-header">
+      <h3>Usuários Cadastrados</h3>
+      <p>Gerencie todos os usuários do sistema</p>
+    </div>
+    
+    <div class="users-table-container">
+      <table class="users-table">
+        <thead>
+          <tr>
+            <th>Nome</th>
+            <th>Email</th>
+            <th>Telefone</th>
+            <th>Status</th>
+            <th>Último Acesso</th>
+            <th>Cadastro</th>
+          </tr>
+        </thead>
+        <tbody>
+          {#each usuarios as usuario}
+            <tr>
+              <td>
+                <div class="user-cell">
+                  <div class="user-avatar-small">
+                    {usuario.nome?.charAt(0)?.toUpperCase() || 'U'}
+                  </div>
+                  <span class="user-name">{usuario.nome || 'Nome não informado'}</span>
+                </div>
+              </td>
+              <td class="email-cell">{usuario.email}</td>
+              <td>{usuario.telefone || 'Não informado'}</td>
+              <td>
+                <span class="status-badge {getStatusClass(usuario.last_sign_in_at)}">
+                  {getStatusText(usuario.last_sign_in_at)}
+                </span>
+              </td>
+              <td class="date-cell">{formatDate(usuario.last_sign_in_at)}</td>
+              <td class="date-cell">{formatDate(usuario.created_at)}</td>
+            </tr>
+          {:else}
+            <tr>
+              <td colspan="6" class="empty-state">
+                <div class="empty-content">
+                  <div class="empty-icon">👥</div>
+                  <h4>Nenhum usuário encontrado</h4>
+                  <p>Ainda não há usuários cadastrados no sistema.</p>
+                </div>
+              </td>
+            </tr>
+          {/each}
+        </tbody>
+      </table>
     </div>
   </div>
   
@@ -218,10 +301,156 @@
     opacity: 0.8;
   }
   
+  .status-online {
+    color: #10b981;
+  }
+  
+  /* Seção de Usuários */
+  .users-section {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-xl);
+    margin-top: var(--spacing-2xl);
+  }
+  
+  .users-table-container {
+    background: var(--surface-card);
+    border-radius: var(--radius-lg);
+    border: 1px solid var(--border-soft);
+    overflow: hidden;
+    box-shadow: var(--shadow-sm);
+  }
+  
+  .users-table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+  
+  .users-table thead {
+    background: var(--surface-secondary);
+  }
+  
+  .users-table th {
+    padding: var(--spacing-md) var(--spacing-lg);
+    text-align: left;
+    font-size: var(--text-sm);
+    font-weight: 600;
+    color: var(--text-secondary);
+    border-bottom: 1px solid var(--border-soft);
+  }
+  
+  .users-table td {
+    padding: var(--spacing-md) var(--spacing-lg);
+    border-bottom: 1px solid var(--border-soft);
+    font-size: var(--text-sm);
+  }
+  
+  .users-table tbody tr:hover {
+    background: var(--surface-hover);
+  }
+  
+  .user-cell {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-md);
+  }
+  
+  .user-avatar-small {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background: var(--brand-primary);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 600;
+    color: white;
+    font-size: var(--text-xs);
+  }
+  
+  .user-name {
+    font-weight: 500;
+    color: var(--text-primary);
+  }
+  
+  .email-cell {
+    color: var(--text-secondary);
+    font-family: 'Courier New', monospace;
+    font-size: var(--text-xs);
+  }
+  
+  .date-cell {
+    color: var(--text-secondary);
+    font-size: var(--text-xs);
+  }
+  
+  .status-badge {
+    padding: 4px 8px;
+    border-radius: var(--radius-sm);
+    font-size: var(--text-xs);
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+  
+  .status-active {
+    background: rgba(16, 185, 129, 0.1);
+    color: #059669;
+    border: 1px solid rgba(16, 185, 129, 0.2);
+  }
+  
+  .status-recent {
+    background: rgba(245, 158, 11, 0.1);
+    color: #d97706;
+    border: 1px solid rgba(245, 158, 11, 0.2);
+  }
+  
+  .status-inactive {
+    background: rgba(107, 114, 128, 0.1);
+    color: #6b7280;
+    border: 1px solid rgba(107, 114, 128, 0.2);
+  }
+  
+  .status-never {
+    background: rgba(239, 68, 68, 0.1);
+    color: #dc2626;
+    border: 1px solid rgba(239, 68, 68, 0.2);
+  }
+  
+  .empty-state {
+    text-align: center;
+    padding: var(--spacing-2xl);
+  }
+  
+  .empty-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--spacing-md);
+  }
+  
+  .empty-icon {
+    font-size: 3rem;
+    opacity: 0.5;
+  }
+  
+  .empty-content h4 {
+    margin: 0;
+    color: var(--text-primary);
+    font-size: var(--text-lg);
+  }
+  
+  .empty-content p {
+    margin: 0;
+    color: var(--text-secondary);
+    font-size: var(--text-sm);
+  }
+  
   .actions-section {
     display: flex;
     flex-direction: column;
     gap: var(--spacing-xl);
+    margin-top: var(--spacing-2xl);
   }
   
   .section-header {
@@ -316,6 +545,31 @@
     .stat-card,
     .action-card {
       padding: var(--spacing-lg);
+    }
+    
+    .users-table-container {
+      overflow-x: auto;
+    }
+    
+    .users-table th,
+    .users-table td {
+      padding: var(--spacing-sm);
+      font-size: var(--text-xs);
+    }
+    
+    .user-cell {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: var(--spacing-xs);
+    }
+  }
+  
+  @media (max-width: 480px) {
+    .users-table th:nth-child(3),
+    .users-table td:nth-child(3),
+    .users-table th:nth-child(5),
+    .users-table td:nth-child(5) {
+      display: none;
     }
   }
 </style>

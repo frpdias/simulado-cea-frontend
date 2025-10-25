@@ -45,6 +45,12 @@
   let usuarioAtual: { id: string; email: string } | null = null;
 
   let acertosParciais = 0;
+  
+  // Funcionalidades de filtragem por tema
+  let temasDisponiveis: string[] = [];
+  let temaSelecionado: string | null = null;
+  let mostrarFiltroTemas = false;
+  let questoesPorTema: Record<string, Questao[]> = {};
 
   export let data: PageData;
   const supabase = data.supabase;
@@ -58,6 +64,11 @@
   $: acertosParciais = Object.values(resultados).filter((valor) => valor === 'correta').length;
   $: percentualAtual = respondidas ? Math.round((acertosParciais / respondidas) * 100) : 0;
   $: percentualFinal = questoes.length ? Math.round((acertosParciais / questoes.length) * 100) : 0;
+
+  // Reactive statement para resetar simulado quando tema mudar
+  $: if (questoesBase.length > 0 && temaSelecionado !== undefined) {
+    resetarEstadoSimulado();
+  }
 
   onMount(async () => {
     if (!numeroSimulado || Number.isNaN(numeroSimulado)) {
@@ -78,16 +89,11 @@
       email: session.user.email ?? ''
     };
 
-    // Construir a query com filtro por tema se especificado
+    // Construir a query
     let query = supabase
       .from('questoes')
       .select('id, tema, enunciado, alternativa_a, alternativa_b, alternativa_c, alternativa_d, resposta_correta, comentario, ha_imagem, id_questao_origem, url_imagem')
       .eq('simulado_numero', numeroSimulado);
-
-    // Aplicar filtro por tema se especificado na URL
-    if (temaSelecionado) {
-      query = query.ilike('tema', temaSelecionado.trim());
-    }
 
     const { data: questoesData, error } = await query.order('id', { ascending: true });
 
@@ -96,6 +102,23 @@
     } else {
       const lista = questoesData ?? [];
       questoesBase = await carregarImagensQuestoes(lista);
+      
+      // Agrupar questões por tema
+      questoesPorTema = {};
+      temasDisponiveis = [];
+      
+      questoesBase.forEach(questao => {
+        const tema = questao.tema || 'Sem tema';
+        if (!questoesPorTema[tema]) {
+          questoesPorTema[tema] = [];
+          temasDisponiveis.push(tema);
+        }
+        questoesPorTema[tema].push(questao);
+      });
+      
+      // Ordenar temas alfabeticamente
+      temasDisponiveis.sort();
+      
       resetarEstadoSimulado();
     }
 
@@ -107,7 +130,20 @@
   });
 
   function resetarEstadoSimulado() {
-    questoes = prepararQuestoes(questoesBase);
+    // Aplicar filtro de tema se selecionado
+    let questoesParaUsar = temaSelecionado 
+      ? questoesPorTema[temaSelecionado] || []
+      : questoesBase;
+      
+    // Se há mais de 70 questões, selecionar aleatoriamente 70
+    if (questoesParaUsar.length > 70) {
+      questoesParaUsar = embaralharArray([...questoesParaUsar]).slice(0, 70);
+    } else {
+      // Se há 70 ou menos, embaralhar a ordem
+      questoesParaUsar = embaralharArray([...questoesParaUsar]);
+    }
+      
+    questoes = prepararQuestoes(questoesParaUsar);
     indiceAtual = 0;
     respostas = {};
     resultados = {};
@@ -118,6 +154,46 @@
     envioMensagem = '';
     provaIniciada = false;
     provaEncerrada = false;
+  }
+
+  function embaralharArray<T>(array: T[]): T[] {
+    const arrayEmbaralhado = [...array];
+    for (let i = arrayEmbaralhado.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [arrayEmbaralhado[i], arrayEmbaralhado[j]] = [arrayEmbaralhado[j], arrayEmbaralhado[i]];
+    }
+    return arrayEmbaralhado;
+  }
+
+  function prepararQuestoes(questoes: Questao[]): QuestaoPreparada[] {
+    return questoes.map(questao => ({
+      ...questao,
+      opcoes: [
+        { label: 'A', texto: questao.alternativa_a || '' },
+        { label: 'B', texto: questao.alternativa_b || '' },
+        { label: 'C', texto: questao.alternativa_c || '' },
+        { label: 'D', texto: questao.alternativa_d || '' }
+      ].filter(opcao => opcao.texto.trim() !== '')
+    }));
+  }
+
+  function filtrarPorTema(tema: string | null) {
+    if (provaIniciada && !provaEncerrada) {
+      if (!confirm('Você está no meio de uma prova. Deseja realmente mudar o filtro? Isso reiniciará o simulado.')) {
+        return;
+      }
+    }
+    
+    temaSelecionado = tema;
+    resetarEstadoSimulado();
+  }
+
+  function toggleFiltroTemas() {
+    mostrarFiltroTemas = !mostrarFiltroTemas;
+  }
+
+  function contarQuestoesPorTema(tema: string): number {
+    return questoesPorTema[tema]?.length || 0;
   }
 
   const DISPLAY_LETRAS = ['A', 'B', 'C', 'D'] as const;
@@ -368,42 +444,6 @@
     return resultados;
   }
 
-  function prepararQuestoes(lista: Questao[]): QuestaoPreparada[] {
-    return lista.map((questao) => {
-      const alternativas = [
-        { label: 'A', texto: questao.alternativa_a },
-        { label: 'B', texto: questao.alternativa_b },
-        { label: 'C', texto: questao.alternativa_c },
-        { label: 'D', texto: questao.alternativa_d }
-      ]
-        .filter((op) => op.texto && op.texto.trim().length > 0)
-        .map((op) => ({ label: op.label, texto: op.texto!.trim() }));
-
-      const embaralhadas = embaralhar(alternativas);
-
-      const corretaOriginal = (questao.resposta_correta ?? '').trim().toUpperCase();
-      let novaCorreta = corretaOriginal;
-
-      const opcoes = embaralhadas.map((opcao, index) => {
-        const label = DISPLAY_LETRAS[index] ?? opcao.label;
-        if (opcao.label === corretaOriginal) {
-          novaCorreta = label;
-        }
-        return {
-          label,
-          texto: opcao.texto
-        };
-      });
-
-      return {
-        ...questao,
-        resposta_correta: novaCorreta,
-        opcoes,
-        imagens: questao.imagens ?? []
-      };
-    });
-  }
-
   function embaralhar<T>(entrada: T[]): T[] {
     const array = [...entrada];
     for (let i = array.length - 1; i > 0; i -= 1) {
@@ -550,13 +590,57 @@
 <div class="container">
   <header class="topo">
     <div>
-      <button class="botao-voltar" on:click={voltarAoPainel}>← Painel</button>
       <div class="cabecalho">
-        <h1>Simulado Nº {numeroSimulado}</h1>
+        <div class="cabecalho-principal">
+          <h1>Simulado Nº {numeroSimulado}</h1>
+          <div class="cabecalho-controles">
+            <button class="botao-filtro" on:click={toggleFiltroTemas} class:ativo={mostrarFiltroTemas}>
+              <span class="filtro-icone">🎯</span>
+              <span>Filtrar por tema</span>
+              <span class="seta" class:rotacionada={mostrarFiltroTemas}>▼</span>
+            </button>
+            {#if temaSelecionado}
+              <button class="botao-limpar-filtro" on:click={() => filtrarPorTema(null)} title="Limpar filtro">
+                <span>✕</span>
+              </button>
+            {/if}
+          </div>
+        </div>
+        
+        {#if mostrarFiltroTemas}
+          <div class="painel-filtros">
+            <div class="filtros-cabecalho">
+              <strong>Filtrar questões por tema:</strong>
+              <span class="total-temas">({temasDisponiveis.length} temas disponíveis)</span>
+            </div>
+            <div class="lista-temas">
+              <button 
+                class="tema-opcao" 
+                class:selecionado={!temaSelecionado}
+                on:click={() => filtrarPorTema(null)}
+              >
+                <span class="tema-nome">Todos os temas</span>
+                <span class="tema-count">{questoesBase.length} questões</span>
+              </button>
+              {#each temasDisponiveis as tema}
+                <button 
+                  class="tema-opcao" 
+                  class:selecionado={temaSelecionado === tema}
+                  on:click={() => filtrarPorTema(tema)}
+                >
+                  <span class="tema-nome">{tema}</span>
+                  <span class="tema-count">{contarQuestoesPorTema(tema)} questões</span>
+                </button>
+              {/each}
+            </div>
+          </div>
+        {/if}
+        
         {#if temaSelecionado}
-          <div class="filtro-tema">
+          <div class="filtro-ativo">
             <span class="filtro-icone">🔍</span>
-            <span class="filtro-texto">Filtrando por: <strong>{decodeURIComponent(temaSelecionado)}</strong></span>
+            <span class="filtro-texto">Filtrando por: <strong>{temaSelecionado}</strong></span>
+            <span class="filtro-count">({contarQuestoesPorTema(temaSelecionado)} questões)</span>
           </div>
         {/if}
       </div>
@@ -829,37 +913,167 @@
     margin-bottom: clamp(1.75rem, 3vw, 2.5rem);
   }
 
-  .botao-voltar {
-    border: none;
-    background: transparent;
-    color: #6366f1;
-    font-weight: 600;
-    cursor: pointer;
-    margin-bottom: 0.25rem;
-  }
-
-  .botao-voltar:hover {
-    text-decoration: underline;
-  }
-
   .cabecalho {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+  }
+
+  .cabecalho-principal {
     display: flex;
     flex-wrap: wrap;
     justify-content: space-between;
-    gap: 1rem;
     align-items: center;
+    gap: 1rem;
   }
 
-  .filtro-tema {
+  .cabecalho-controles {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+  }
+
+  .botao-filtro {
     display: flex;
     align-items: center;
     gap: 0.5rem;
-    padding: 0.5rem 1rem;
+    padding: 0.75rem 1rem;
+    background: rgba(15, 23, 42, 0.8);
+    border: 1px solid rgba(148, 163, 184, 0.25);
+    border-radius: 8px;
+    color: #e2e8f0;
+    font-size: 0.875rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
+  }
+
+  .botao-filtro:hover {
+    background: rgba(15, 23, 42, 0.9);
+    border-color: rgba(99, 102, 241, 0.5);
+  }
+
+  .botao-filtro.ativo {
+    background: rgba(99, 102, 241, 0.2);
+    border-color: rgba(99, 102, 241, 0.5);
+    color: #c7d2fe;
+  }
+
+  .seta {
+    transition: transform 0.2s ease;
+    font-size: 0.75rem;
+  }
+
+  .seta.rotacionada {
+    transform: rotate(180deg);
+  }
+
+  .botao-limpar-filtro {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 2rem;
+    height: 2rem;
+    padding: 0;
+    background: rgba(239, 68, 68, 0.1);
+    border: 1px solid rgba(239, 68, 68, 0.3);
+    border-radius: 6px;
+    color: #fca5a5;
+    cursor: pointer;
+    transition: all 0.2s ease;
+  }
+
+  .botao-limpar-filtro:hover {
+    background: rgba(239, 68, 68, 0.2);
+    border-color: rgba(239, 68, 68, 0.5);
+  }
+
+  .painel-filtros {
+    background: rgba(15, 23, 42, 0.95);
+    border: 1px solid rgba(148, 163, 184, 0.2);
+    border-radius: 12px;
+    padding: 1.5rem;
+    margin-top: 0.5rem;
+  }
+
+  .filtros-cabecalho {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 1rem;
+    color: #e2e8f0;
+    font-size: 0.875rem;
+  }
+
+  .total-temas {
+    color: rgba(148, 163, 184, 0.7);
+  }
+
+  .lista-temas {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 0.5rem;
+    max-height: 300px;
+    overflow-y: auto;
+  }
+
+  .tema-opcao {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.75rem 1rem;
+    background: rgba(15, 23, 42, 0.6);
+    border: 1px solid rgba(148, 163, 184, 0.15);
+    border-radius: 8px;
+    color: #e2e8f0;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    text-align: left;
+  }
+
+  .tema-opcao:hover {
+    background: rgba(15, 23, 42, 0.8);
+    border-color: rgba(148, 163, 184, 0.3);
+  }
+
+  .tema-opcao.selecionado {
+    background: rgba(99, 102, 241, 0.2);
+    border-color: rgba(99, 102, 241, 0.5);
+    color: #c7d2fe;
+  }
+
+  .tema-nome {
+    font-weight: 500;
+    flex: 1;
+  }
+
+  .tema-count {
+    font-size: 0.75rem;
+    color: rgba(148, 163, 184, 0.7);
+    background: rgba(148, 163, 184, 0.1);
+    padding: 0.25rem 0.5rem;
+    border-radius: 4px;
+  }
+
+  .tema-opcao.selecionado .tema-count {
+    background: rgba(99, 102, 241, 0.3);
+    color: #c7d2fe;
+  }
+
+  .filtro-ativo {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.75rem 1rem;
     background: rgba(99, 102, 241, 0.1);
     border: 1px solid rgba(99, 102, 241, 0.3);
     border-radius: 8px;
     font-size: 0.875rem;
     color: #e2e8f0;
+  }
+
+  .filtro-count {
+    color: rgba(148, 163, 184, 0.7);
+    font-size: 0.75rem;
   }
 
   .filtro-icone {
@@ -976,12 +1190,35 @@
 
   .questoes-navegador {
     display: grid;
-    gap: 0.5rem;
-    grid-template-columns: repeat(auto-fit, minmax(42px, 1fr));
+    gap: 0.4rem;
+    grid-template-columns: repeat(auto-fit, minmax(36px, 1fr));
     background: rgba(15, 23, 42, 0.85);
     border: 1px solid rgba(148, 163, 184, 0.25);
     border-radius: 18px;
-    padding: 0.65rem;
+    padding: 0.6rem;
+  }
+
+  .questoes-navegador button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+    border-radius: 10px;
+    border: 1px solid rgba(148, 163, 184, 0.25);
+    background: rgba(15, 23, 42, 0.85);
+    color: rgba(226, 232, 240, 0.75);
+    font-weight: 600;
+    font-size: 0.8rem;
+    cursor: pointer;
+    transition: transform 0.18s ease, border 0.18s ease, background 0.18s ease;
+  }
+
+  .questoes-navegador button:disabled {
+    opacity: 0.3;
+    cursor: not-allowed;
+    background: rgba(15, 23, 42, 0.4);
+    pointer-events: none;
   }
 
   .questoes-legenda {
@@ -997,22 +1234,6 @@
   .questoes-legenda strong {
     font-size: 0.95rem;
     color: #e2e8f0;
-  }
-
-  .questoes-navegador button {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    aspect-ratio: 1;
-    min-height: 42px;
-    border-radius: 12px;
-    border: 1px solid rgba(148, 163, 184, 0.25);
-    background: rgba(15, 23, 42, 0.85);
-    color: rgba(226, 232, 240, 0.75);
-    font-weight: 600;
-    font-size: 0.95rem;
-    cursor: pointer;
-    transition: transform 0.18s ease, border 0.18s ease, background 0.18s ease;
   }
 
   .questoes-navegador button:hover {
@@ -1451,6 +1672,15 @@
     .questao-side {
       grid-template-columns: 1fr;
     }
+    
+    .cabecalho-principal {
+      flex-direction: column;
+      align-items: stretch;
+    }
+    
+    .lista-temas {
+      grid-template-columns: 1fr;
+    }
   }
 
   @media (max-width: 720px) {
@@ -1460,11 +1690,41 @@
     }
 
     .questoes-navegador {
-      grid-template-columns: repeat(auto-fit, minmax(44px, 1fr));
+      grid-template-columns: repeat(auto-fit, minmax(32px, 1fr));
+      max-width: 100%;
+      gap: 0.3rem;
+      padding: 0.5rem;
+    }
+
+    .questoes-navegador button {
+      width: 32px;
+      height: 32px;
+      font-size: 0.75rem;
+      border-radius: 8px;
     }
 
     .side-card {
       padding: 1.4rem;
+    }
+    
+    .cabecalho-controles {
+      justify-content: center;
+      width: 100%;
+    }
+    
+    .botao-filtro {
+      flex: 1;
+      justify-content: center;
+    }
+    
+    .painel-filtros {
+      padding: 1rem;
+    }
+    
+    .filtros-cabecalho {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 0.25rem;
     }
   }
 </style>

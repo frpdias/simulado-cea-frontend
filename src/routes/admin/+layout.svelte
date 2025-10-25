@@ -32,7 +32,7 @@
       <div class="header-actions">
         <div class="user-info">
           <div class="user-avatar">
-            {data.user.nome.charAt(0).toUpperCase()}
+            <img src="/FULLSTACK3.png" alt="Logo" class="avatar-logo" />
           </div>
           <div class="user-details">
             <span class="user-name">{data.user.nome}</span>
@@ -135,6 +135,14 @@
     font-weight: 600;
     color: white;
     font-size: var(--text-base);
+    overflow: hidden;
+  }
+  
+  .avatar-logo {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 50%;
   }
   
   .user-details {

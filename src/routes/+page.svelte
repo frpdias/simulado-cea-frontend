@@ -41,21 +41,6 @@
 			</div>
 		</div>
 
-		<nav class="landing__actions">
-			<a class="action primary" href="/cadastro">
-				<span>Começar agora</span>
-				<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-					<path d="M5 12h14M12 5l7 7-7 7"/>
-				</svg>
-			</a>
-			<a class="action secondary" href="/painel">
-				<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-					<path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4M10 17l5-5-5-5M21 12H9"/>
-				</svg>
-				<span>Entrar como aluno</span>
-			</a>
-		</nav>
-
 		<div class="landing__meta">
 			<div class="meta-item">
 				<div class="meta-icon">📚</div>
@@ -79,15 +64,6 @@
 		</div>
 
 		<div class="landing__grid">
-			<a href="/painel" class="menu-card featured">
-				<div class="card-icon">📊</div>
-				<div class="card-content">
-					<span class="menu-card__title">Painel do Aluno</span>
-					<small>Resumo do desempenho, simulados e filtros por tema</small>
-					<div class="card-badge">Popular</div>
-				</div>
-				<div class="card-arrow">→</div>
-			</a>
 			<a href="/login" class="menu-card">
 				<div class="card-icon">🔐</div>
 				<div class="card-content">
@@ -132,10 +108,10 @@
 
 	.landing {
 		min-height: calc(100vh - 4rem);
-		padding: clamp(1.5rem, 3vw, 3rem) clamp(1rem, 4vw, 4.5rem);
+		padding: clamp(1rem, 2vw, 2rem) clamp(1rem, 4vw, 4.5rem) clamp(1rem, 2vw, 2rem);
 		display: grid;
 		grid-template-columns: repeat(auto-fit, minmax(min(400px, 100%), 1fr));
-		gap: clamp(2rem, 5vw, 4rem);
+		gap: clamp(1.5rem, 4vw, 3rem);
 		position: relative;
 		background: 
 			radial-gradient(circle at 20% 80%, rgba(99, 102, 241, 0.1) 0%, transparent 50%),
@@ -372,75 +348,6 @@
 		letter-spacing: 0.05em;
 	}
 
-	.landing__actions {
-		display: flex;
-		flex-wrap: wrap;
-		gap: 1rem;
-		margin-top: 0.5rem;
-	}
-
-	.action {
-		display: inline-flex;
-		align-items: center;
-		justify-content: center;
-		gap: 0.75rem;
-		padding: 1rem 2rem;
-		border-radius: 999px;
-		font-weight: 600;
-		letter-spacing: 0.01em;
-		text-decoration: none;
-		transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-		position: relative;
-		overflow: hidden;
-		min-width: 160px;
-		font-size: clamp(0.9rem, 1vw, 1rem);
-	}
-
-	.action::before {
-		content: '';
-		position: absolute;
-		top: 0;
-		left: -100%;
-		width: 100%;
-		height: 100%;
-		background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
-		transition: left 0.5s ease;
-	}
-
-	.action:hover::before {
-		left: 100%;
-	}
-
-	.action.primary {
-		background: linear-gradient(135deg, var(--brand-primary) 0%, var(--brand-secondary) 100%);
-		color: #fff;
-		box-shadow: 
-			0 10px 25px rgba(99, 102, 241, 0.3),
-			0 5px 10px rgba(0, 0, 0, 0.1);
-	}
-
-	.action.primary:hover {
-		transform: translateY(-3px);
-		box-shadow: 
-			0 15px 35px rgba(99, 102, 241, 0.4),
-			0 8px 15px rgba(0, 0, 0, 0.15);
-	}
-
-	.action.secondary {
-		background: rgba(255, 255, 255, 0.05);
-		color: var(--text-secondary);
-		border: 1px solid rgba(99, 102, 241, 0.3);
-		backdrop-filter: blur(10px);
-	}
-
-	.action.secondary:hover {
-		transform: translateY(-3px);
-		border-color: rgba(99, 102, 241, 0.5);
-		background: rgba(99, 102, 241, 0.1);
-		color: var(--text-primary);
-		box-shadow: 0 10px 25px rgba(99, 102, 241, 0.2);
-	}
-
 	.landing__meta {
 		display: grid;
 		grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
@@ -548,12 +455,6 @@
 			linear-gradient(135deg, rgba(15, 23, 42, 0.9) 0%, rgba(30, 41, 59, 0.9) 100%);
 	}
 
-	.menu-card.featured {
-		border-color: rgba(99, 102, 241, 0.4);
-		background: 
-			linear-gradient(135deg, rgba(99, 102, 241, 0.1) 0%, rgba(15, 23, 42, 0.8) 100%);
-	}
-
 	.menu-card.admin {
 		border-color: rgba(249, 115, 22, 0.3);
 		background: 
@@ -655,16 +556,6 @@
 			gap: 0.75rem;
 		}
 
-		.landing__actions {
-			flex-direction: column;
-			align-items: stretch;
-		}
-
-		.action {
-			min-width: unset;
-			justify-content: center;
-		}
-
 		.landing__meta {
 			grid-template-columns: 1fr;
 		}
@@ -724,7 +615,6 @@
 
 	@media (hover: none) {
 		.menu-card:hover,
-		.action:hover,
 		.meta-item:hover,
 		.stat-item:hover,
 		.landing__hero:hover,
