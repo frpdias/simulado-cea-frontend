@@ -174,18 +174,18 @@ export function logSecurityEvent(
 export function getSecurityHeaders(): Record<string, string> {
   return {
     'X-Content-Type-Options': 'nosniff',
-    'X-Frame-Options': 'DENY',
+    'X-Frame-Options': 'SAMEORIGIN',
     'X-XSS-Protection': '1; mode=block',
     'Referrer-Policy': 'strict-origin-when-cross-origin',
     'Permissions-Policy': 'camera=(), microphone=(), geolocation=()',
     'Content-Security-Policy': [
       "default-src 'self'",
-      "script-src 'self' 'unsafe-inline' https://js.mercadopago.com https://vercel.live https://*.vercel.live",
+      "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://js.mercadopago.com https://vercel.live https://*.vercel.live https://ext-cdn.cuponomia.com.br",
       "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
       "img-src 'self' data: https: blob:",
       "font-src 'self' https://fonts.gstatic.com https://fonts.googleapis.com",
-      "connect-src 'self' https://*.supabase.co wss://*.supabase.co https://api.mercadopago.com https://vercel.live https://*.vercel.live",
-      "frame-src https://www.mercadopago.com",
+      "connect-src 'self' https://*.supabase.co wss://*.supabase.co https://api.mercadopago.com https://vercel.live https://*.vercel.live https://ext-cdn.cuponomia.com.br",
+      "frame-src 'self' https://www.mercadopago.com https://vercel.live https://*.vercel.live",
       "object-src 'none'",
       "base-uri 'self'"
     ].join('; ')

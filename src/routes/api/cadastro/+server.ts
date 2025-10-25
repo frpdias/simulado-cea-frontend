@@ -16,7 +16,25 @@ export const POST: RequestHandler = async (event) => {
 		securityMiddleware(event, 'AUTH');
 		
 		const { request } = event;
-		const payload = await request.json();
+		
+		// Verificar se body existe e é válido
+		const body = await request.text();
+		if (!body || body.trim() === '') {
+			return json({ success: false, error: 'Dados não fornecidos.' }, { 
+				status: 400,
+				headers: getSecurityHeaders()
+			});
+		}
+		
+		let payload;
+		try {
+			payload = JSON.parse(body);
+		} catch (parseError) {
+			return json({ success: false, error: 'Formato de dados inválido.' }, { 
+				status: 400,
+				headers: getSecurityHeaders()
+			});
+		}
 		
 		// Sanitizar e validar inputs
 		const nome = sanitizeInput(payload?.nome).trim();
@@ -102,7 +120,19 @@ export const POST: RequestHandler = async (event) => {
 
 		if (createUserError) {
 			console.error('Cadastro: erro ao criar usuário no Supabase Auth', createUserError);
-			return json({ success: false, error: createUserError.message }, { status: 400 });
+			logSecurityEvent('cadastro_auth_error', { error: createUserError.message }, request);
+			
+			let errorMessage = 'Erro ao criar conta de usuário.';
+			if (createUserError.message?.includes('User already registered')) {
+				errorMessage = 'E-mail já cadastrado. Faça login ou recupere sua senha.';
+			} else if (createUserError.message?.includes('Password')) {
+				errorMessage = 'Senha deve ter pelo menos 8 caracteres, incluindo maiúscula, minúscula e número.';
+			}
+			
+			return json({ success: false, error: errorMessage }, { 
+				status: 400,
+				headers: getSecurityHeaders()
+			});
 		}
 
 		const userId = data.user?.id;
@@ -136,9 +166,25 @@ export const POST: RequestHandler = async (event) => {
 		});
 	} catch (err) {
 		const message = err instanceof Error ? err.message : 'Erro interno';
-		logSecurityEvent('cadastro_exception', { error: message }, event.request);
-		console.error('Cadastro: exceção não tratada', err);
-		return json({ success: false, error: 'Erro interno do servidor.' }, { 
+		const stack = err instanceof Error ? err.stack : '';
+		
+		logSecurityEvent('cadastro_exception', { 
+			error: message,
+			stack: stack?.substring(0, 200) 
+		}, event.request);
+		
+		console.error('Cadastro: exceção não tratada', {
+			message,
+			stack,
+			url: event.request.url,
+			method: event.request.method,
+			headers: Object.fromEntries(event.request.headers.entries())
+		});
+		
+		return json({ 
+			success: false, 
+			error: 'Erro interno do servidor. Tente novamente em alguns instantes.' 
+		}, { 
 			status: 500,
 			headers: getSecurityHeaders()
 		});
