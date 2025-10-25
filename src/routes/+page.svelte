@@ -107,7 +107,7 @@
 	}
 
 	.landing {
-		min-height: calc(100vh - 4rem);
+		min-height: 100vh;
 		padding: clamp(1rem, 2vw, 2rem) clamp(1rem, 4vw, 4.5rem) clamp(1rem, 2vw, 2rem);
 		display: grid;
 		grid-template-columns: repeat(auto-fit, minmax(min(400px, 100%), 1fr));
