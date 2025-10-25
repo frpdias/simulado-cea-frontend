@@ -594,6 +594,10 @@
         <div class="cabecalho-principal">
           <h1>Simulado Nº {numeroSimulado}</h1>
           <div class="cabecalho-controles">
+            <button class="botao-sair" on:click={voltarAoPainel} title="Voltar ao painel">
+              <span>←</span>
+              <span>Sair do simulado</span>
+            </button>
             <button class="botao-filtro" on:click={toggleFiltroTemas} class:ativo={mostrarFiltroTemas}>
               <span class="filtro-icone">🎯</span>
               <span>Filtrar por tema</span>
@@ -931,6 +935,26 @@
     display: flex;
     align-items: center;
     gap: 0.75rem;
+  }
+
+  .botao-sair {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.75rem 1rem;
+    background: rgba(71, 85, 105, 0.8);
+    border: 1px solid rgba(148, 163, 184, 0.25);
+    border-radius: 8px;
+    color: #e2e8f0;
+    font-size: 0.875rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
+  }
+
+  .botao-sair:hover {
+    background: rgba(71, 85, 105, 0.9);
+    border-color: rgba(148, 163, 184, 0.4);
+    transform: translateX(-2px);
   }
 
   .botao-filtro {

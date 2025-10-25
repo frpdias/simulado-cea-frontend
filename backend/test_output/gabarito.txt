@@ -1,0 +1,12 @@
+GABARITO
+==================================================
+Questão 1: C
+Questão 2: A
+Questão 3: B
+Questão 4: C
+Questão 5: A
+Questão 6: E
+Questão 1500: C
+Questão 1822: B
+Questão 1888: E
+Questão 1889: D
