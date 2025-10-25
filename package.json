@@ -9,8 +9,11 @@
 		"preview": "vite preview",
 		"build:vercel": "VERCEL=1 vite build",
 		"deploy:vercel": "VERCEL=1 npx vercel deploy --prod",
+		"postdeploy:vercel": "node scripts/prune-vercel.mjs",
+		"deploy:prune": "node scripts/prune-vercel.mjs",
 		"admin:ensure": "node scripts/ensure-admin.mjs",
 		"seed:fakes": "node scripts/seed-fake-data.mjs",
+		"sync:questoes:imagens": "node scripts/sync-question-images.mjs",
 		"prepare": "svelte-kit sync || echo ''",
 		"check": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json",
 		"check:watch": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json --watch"

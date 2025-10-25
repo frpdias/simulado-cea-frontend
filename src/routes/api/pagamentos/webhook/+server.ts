@@ -45,7 +45,23 @@ async function processarNotificacao(topic: string | null, paymentId: string | nu
 		moeda: pagamento.currency_id ?? null,
 		metodo: pagamento.payment_method_id ?? null,
 		tipo: pagamento.payment_type_id ?? null,
-		raw_data: pagamento as unknown as Record<string, unknown>
+		raw_data: {
+			id: pagamento.id ?? null,
+			status: pagamento.status ?? null,
+			status_detail: pagamento.status_detail ?? null,
+			transaction_amount: pagamento.transaction_amount ?? null,
+			currency_id: pagamento.currency_id ?? null,
+			payment_method_id: pagamento.payment_method_id ?? null,
+			payment_type_id: pagamento.payment_type_id ?? null,
+			external_reference: pagamento.external_reference ?? null,
+			metadata: pagamento.metadata ?? null,
+			payer: pagamento.payer
+				? {
+						id: pagamento.payer.id ?? null,
+						email: pagamento.payer.email ?? null
+					}
+				: null
+		}
 	};
 
 	const { error: pagamentoErro } = await supabaseAdmin

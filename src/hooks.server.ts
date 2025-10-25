@@ -1,9 +1,11 @@
 import { createSupabaseServerClient } from '@supabase/auth-helpers-sveltekit';
 import type { Handle } from '@sveltejs/kit';
 import { env } from '$env/dynamic/private';
+import { dev } from '$app/environment';
+import { getSecurityHeaders, logSecurityEvent } from '$lib/server/security';
 
-const supabaseUrl = env.VITE_SUPABASE_URL;
-const supabaseAnonKey = env.VITE_SUPABASE_KEY;
+const supabaseUrl = (env.VITE_SUPABASE_URL ?? '').trim();
+const supabaseAnonKey = (env.VITE_SUPABASE_KEY ?? '').trim();
 
 if (!supabaseUrl) {
 	throw new Error('VITE_SUPABASE_URL não está configurada.');
@@ -13,23 +15,20 @@ if (!supabaseAnonKey) {
 	throw new Error('VITE_SUPABASE_KEY não está configurada.');
 }
 
+const log = (...args: unknown[]) => {
+	if (dev) {
+		console.log(...args);
+	}
+};
+
+const logError = (...args: unknown[]) => {
+	if (dev) {
+		console.error(...args);
+	}
+};
+
 export const handle: Handle = async ({ event, resolve }) => {
 	try {
-		console.log('🔍 Hook - Processando requisição para:', event.url.pathname);
-		
-		// Verificar variáveis de ambiente
-		if (!supabaseUrl) {
-			console.error('❌ VITE_SUPABASE_URL não configurada');
-			throw new Error('VITE_SUPABASE_URL não está configurada.');
-		}
-		
-		if (!supabaseAnonKey) {
-			console.error('❌ VITE_SUPABASE_KEY não configurada');
-			throw new Error('VITE_SUPABASE_KEY não está configurada.');
-		}
-		
-		console.log('✅ Variáveis de ambiente configuradas');
-
 		event.locals.supabase = createSupabaseServerClient({
 			supabaseUrl,
 			supabaseKey: supabaseAnonKey,
@@ -38,38 +37,51 @@ export const handle: Handle = async ({ event, resolve }) => {
 
 		event.locals.getSession = async () => {
 			try {
-				console.log('🔐 Obtendo sessão...');
 				const {
 					data: { session }
 				} = await event.locals.supabase.auth.getSession();
-				console.log('✅ Sessão obtida:', session ? 'válida' : 'nula');
 				return session;
 			} catch (error) {
-				console.error('❌ Erro ao obter sessão:', error);
+				logError('Erro ao obter sessão', error);
 				return null;
 			}
 		};
+
+		// Obter a sessão e adicionar aos locals para conveniência
+		const session = await event.locals.getSession();
+		event.locals.session = session;
+
+		// Log de acesso para endpoints críticos
+		if (event.url.pathname.startsWith('/api/')) {
+			logSecurityEvent('api_access', {
+				endpoint: event.url.pathname,
+				method: event.request.method
+			}, event.request);
+		}
 
 		const response = await resolve(event, {
 			filterSerializedResponseHeaders(name) {
 				return name === 'content-range';
 			}
 		});
+
+		// Aplicar headers de segurança globalmente
+		const securityHeaders = getSecurityHeaders();
+		Object.entries(securityHeaders).forEach(([name, value]) => {
+			response.headers.set(name, value);
+		});
 		
-		console.log('✅ Requisição processada com sucesso');
 		return response;
 	} catch (error) {
-		console.error('❌ Erro no handle:', error);
-		
-		// Para requisições de API, retorna erro JSON
+		logError('Erro no hook handle', error);
+
 		if (event.url.pathname.startsWith('/api/')) {
 			return new Response(JSON.stringify({ error: 'Erro interno do servidor' }), {
 				status: 500,
 				headers: { 'Content-Type': 'application/json' }
 			});
 		}
-		
-		// Para outras requisições, tenta resolver sem o supabase
+
 		return resolve(event);
 	}
 };

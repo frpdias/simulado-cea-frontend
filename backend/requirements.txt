@@ -1,0 +1,18 @@
+# Dependências do Extrator de PDF
+# Instale com: pip install -r requirements.txt
+
+# Bibliotecas principais para manipulação de PDF
+PyPDF2>=3.0.0
+pdfplumber>=0.9.0
+PyMuPDF>=1.23.0
+
+# Processamento de imagens
+Pillow>=10.0.0
+opencv-python>=4.8.0
+
+# OCR (opcional, para PDFs escaneados)
+pytesseract>=0.3.10
+
+# Utilitários
+pathlib2>=2.3.7
+argparse>=1.4.0

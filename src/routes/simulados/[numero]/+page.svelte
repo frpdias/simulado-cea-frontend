@@ -14,6 +14,10 @@
     alternativa_c: string | null;
     alternativa_d: string | null;
     resposta_correta: string | null;
+    ha_imagem?: boolean | null;
+    id_questao_origem?: string | null;
+    url_imagem?: string | null;
+    imagens?: string[];
     comentario: string | null;
   }
 
@@ -44,6 +48,7 @@
 
   export let data: PageData;
   const supabase = data.supabase;
+  const STORAGE_BUCKET = 'questoes-images';
 
   $: pagina = $page;
   $: numeroSimulado = Number($page.params.numero);
@@ -76,7 +81,7 @@
     // Construir a query com filtro por tema se especificado
     let query = supabase
       .from('questoes')
-      .select('id, tema, enunciado, alternativa_a, alternativa_b, alternativa_c, alternativa_d, resposta_correta, comentario')
+      .select('id, tema, enunciado, alternativa_a, alternativa_b, alternativa_c, alternativa_d, resposta_correta, comentario, ha_imagem, id_questao_origem, url_imagem')
       .eq('simulado_numero', numeroSimulado);
 
     // Aplicar filtro por tema se especificado na URL
@@ -89,7 +94,8 @@
     if (error) {
       erro = error.message;
     } else {
-      questoesBase = questoesData ?? [];
+      const lista = questoesData ?? [];
+      questoesBase = await carregarImagensQuestoes(lista);
       resetarEstadoSimulado();
     }
 
@@ -115,6 +121,252 @@
   }
 
   const DISPLAY_LETRAS = ['A', 'B', 'C', 'D'] as const;
+
+  const LIMITE_LISTAGEM = 20;
+
+  function gerarReferenciasPossiveis(base: string) {
+    const limparColchetes = base.replace(/^[\[](.+)[\]]$/, '$1').trim();
+    const referencias = new Set<string>();
+
+    const candidatas = [base, limparColchetes, limparColchetes.replace(/[^0-9A-Za-z_-]+/g, ''), limparColchetes.replace(/\D+/g, '')]
+      .map((valor) => valor.trim())
+      .filter((valor) => valor.length > 0);
+
+    for (const valor of candidatas) {
+      referencias.add(valor);
+    }
+
+    return Array.from(referencias);
+  }
+
+  function formatarQuestaoComColunas(enunciado: string) {
+    try {
+      // Separar introdução das colunas
+      const inicioColuna1 = enunciado.search(/●\s*COLUNA\s+1/i);
+      if (inicioColuna1 === -1) {
+        return { temAlternativas: false, textoCompleto: enunciado };
+      }
+
+      const introducao = enunciado.substring(0, inicioColuna1).trim();
+      const parteColunas = enunciado.substring(inicioColuna1);
+
+      // Separar coluna 1 e coluna 2
+      const inicioColuna2 = parteColunas.search(/●\s*COLUNA\s+2/i);
+      if (inicioColuna2 === -1) {
+        return { temAlternativas: false, textoCompleto: enunciado };
+      }
+
+      const textoColuna1 = parteColunas.substring(0, inicioColuna2).trim();
+      const restoTexto = parteColunas.substring(inicioColuna2);
+
+      // Extrair itens da coluna 1
+      const itensColuna1 = [];
+      const matchesColuna1 = textoColuna1.matchAll(/\((\d+)\)\s*([^(]+?)(?=\(\d+\)|$)/g);
+      for (const match of matchesColuna1) {
+        itensColuna1.push(`(${match[1]}) ${match[2].trim()}`);
+      }
+
+      // Separar coluna 2 da conclusão
+      const inicioConclusao = restoTexto.search(/A\s+ordem\s+correta/i);
+      let textoColuna2 = '';
+      let conclusao = '';
+
+      if (inicioConclusao !== -1) {
+        textoColuna2 = restoTexto.substring(0, inicioConclusao);
+        conclusao = restoTexto.substring(inicioConclusao).trim();
+      } else {
+        textoColuna2 = restoTexto;
+      }
+
+      // Extrair itens da coluna 2
+      const itensColuna2 = [];
+      const matchesColuna2 = textoColuna2.matchAll(/\(\s*\)\s*([^(]+?)(?=\(\s*\)|$)/g);
+      for (const match of matchesColuna2) {
+        itensColuna2.push(`( ) ${match[1].trim()}`);
+      }
+
+      return {
+        temAlternativas: true,
+        tipoEspecial: 'colunas',
+        introducao,
+        coluna1: {
+          titulo: '● COLUNA 1',
+          itens: itensColuna1
+        },
+        coluna2: {
+          titulo: '● COLUNA 2',
+          itens: itensColuna2
+        },
+        conclusao: conclusao || ''
+      };
+    } catch (error) {
+      return { temAlternativas: false, textoCompleto: enunciado };
+    }
+  }
+
+  function formatarEnunciado(enunciado: string) {
+    // Detectar se o enunciado tem colunas de correspondência
+    const temColunas = /COLUNA\s+1/i.test(enunciado) && /COLUNA\s+2/i.test(enunciado);
+    
+    if (temColunas) {
+      return formatarQuestaoComColunas(enunciado);
+    }
+    
+    // Detectar se o enunciado tem alternativas numeradas (I, II, III, etc.)
+    const temAlternativasRomanas = /\s+I\s+[–-]\s+.*?\s+II\s+[–-]/i.test(enunciado);
+    
+    if (!temAlternativasRomanas) {
+      return {
+        temAlternativas: false,
+        textoCompleto: enunciado
+      };
+    }
+
+    try {
+      // Encontrar onde começam as alternativas (primeiro "I –")
+      const indicePrimeiraAlternativa = enunciado.search(/\s+I\s+[–-]\s+/);
+      if (indicePrimeiraAlternativa === -1) {
+        return { temAlternativas: false, textoCompleto: enunciado };
+      }
+
+      // Separar introdução
+      const introducao = enunciado.substring(0, indicePrimeiraAlternativa).trim();
+
+      // Usar uma abordagem mais simples: dividir por números romanos primeiro
+      const restoTexto = enunciado.substring(indicePrimeiraAlternativa);
+      
+      // Dividir por números romanos (I, II, III, IV, V, VI)
+      const partes = restoTexto.split(/\s+(?=[IVX]{1,3}\s+[–-])/);
+      
+      const alternativas = [];
+      let conclusao = '';
+
+      for (let i = 0; i < partes.length; i++) {
+        const parte = partes[i].trim();
+        if (!parte) continue;
+
+        // Verificar se esta parte contém um padrão de conclusão
+        const padroesConclusao = [
+          /^(.+?)\s+(Está\s+correto\s+o\s+que\s+se\s+aﬁrma\s+(?:APENAS\s+)?(?:apenas\s+)?em:?.*)$/i,
+          /^(.+?)\s+(São\s+consideradas?\s+.*?)$/i
+        ];
+
+        let encontrouConclusao = false;
+        for (const regex of padroesConclusao) {
+          const match = parte.match(regex);
+          if (match) {
+            if (match[1].trim()) {
+              alternativas.push(match[1].trim());
+            }
+            conclusao = match[2].trim();
+            encontrouConclusao = true;
+            break;
+          }
+        }
+
+        if (!encontrouConclusao) {
+          alternativas.push(parte);
+        }
+      }
+
+      // Se não encontrou conclusão nas alternativas, procurar no final
+      if (!conclusao && alternativas.length > 0) {
+        const ultimaAlternativa = alternativas[alternativas.length - 1];
+        const padroesConclusaoFinal = [
+          /^(.+?)\s+(Está\s+correto\s+.*?)$/i,
+          /^(.+?)\s+(São\s+consideradas?\s+.*?)$/i
+        ];
+
+        for (const regex of padroesConclusaoFinal) {
+          const match = ultimaAlternativa.match(regex);
+          if (match) {
+            alternativas[alternativas.length - 1] = match[1].trim();
+            conclusao = match[2].trim();
+            break;
+          }
+        }
+      }
+
+      return {
+        temAlternativas: true,
+        introducao,
+        alternativas: alternativas.filter(alt => alt.trim()),
+        conclusao: conclusao || ''
+      };
+    } catch (error) {
+      // Em caso de erro, retornar formato simples
+      return {
+        temAlternativas: false,
+        textoCompleto: enunciado
+      };
+    }
+  }
+
+  async function carregarImagensQuestoes(lista: Questao[]) {
+    if (!lista.length) return [] as Questao[];
+
+    const storage = supabase.storage.from(STORAGE_BUCKET);
+    const resultados: Questao[] = [];
+
+    for (const questao of lista) {
+      const imagens: string[] = [];
+
+      if (questao.ha_imagem) {
+        // Primeiro, tentar usar url_imagem se disponível
+        if (questao.url_imagem && questao.url_imagem.trim()) {
+          imagens.push(questao.url_imagem.trim());
+        } else {
+          // Fallback para o método antigo de buscar no storage
+          const referenciaBruta = (questao.id_questao_origem ?? questao.id?.toString() ?? '')
+            .toString()
+            .trim();
+
+          const referencias = referenciaBruta ? gerarReferenciasPossiveis(referenciaBruta) : [];
+
+          for (const referencia of referencias) {
+            if (!referencia) continue;
+
+            const adicionarPublicUrl = (caminho: string) => {
+              const { data } = storage.getPublicUrl(caminho);
+              if (data?.publicUrl && !imagens.includes(data.publicUrl)) {
+                imagens.push(data.publicUrl);
+              }
+            };
+
+            const { data: arquivosDiretorio } = await storage.list(referencia, { limit: LIMITE_LISTAGEM });
+            if (arquivosDiretorio && arquivosDiretorio.length > 0) {
+              for (const arquivo of arquivosDiretorio) {
+                if (arquivo.name.endsWith('/')) continue;
+                adicionarPublicUrl(`${referencia}/${arquivo.name}`);
+              }
+            }
+
+            if (imagens.length === 0) {
+              const { data: arquivosRaiz } = await storage.list('', {
+                limit: LIMITE_LISTAGEM,
+                search: referencia
+              });
+
+              if (arquivosRaiz && arquivosRaiz.length > 0) {
+                for (const arquivo of arquivosRaiz) {
+                  if (!arquivo.name.toLowerCase().includes(referencia.toLowerCase())) continue;
+                  adicionarPublicUrl(arquivo.name);
+                }
+              }
+            }
+
+            if (imagens.length > 0) {
+              break;
+            }
+          }
+        }
+      }
+
+      resultados.push({ ...questao, imagens });
+    }
+
+    return resultados;
+  }
 
   function prepararQuestoes(lista: Questao[]): QuestaoPreparada[] {
     return lista.map((questao) => {
@@ -146,7 +398,8 @@
       return {
         ...questao,
         resposta_correta: novaCorreta,
-        opcoes
+        opcoes,
+        imagens: questao.imagens ?? []
       };
     });
   }
@@ -396,7 +649,67 @@
           {/if}
         </header>
 
-        <p class="questao-enunciado">{questaoAtual.enunciado}</p>
+        {#if formatarEnunciado(questaoAtual.enunciado).temAlternativas}
+          {@const enunciadoFormatado = formatarEnunciado(questaoAtual.enunciado)}
+          {#if enunciadoFormatado.tipoEspecial === 'colunas'}
+            <div class="questao-enunciado-colunas">
+              <p class="questao-introducao">{enunciadoFormatado.introducao}</p>
+              
+              <div class="colunas-container">
+                <div class="coluna">
+                  <h4>{enunciadoFormatado.coluna1.titulo}</h4>
+                  <ul class="coluna-lista">
+                    {#each enunciadoFormatado.coluna1.itens as item}
+                      <li>{item}</li>
+                    {/each}
+                  </ul>
+                </div>
+                
+                <div class="coluna">
+                  <h4>{enunciadoFormatado.coluna2.titulo}</h4>
+                  <ul class="coluna-lista">
+                    {#each enunciadoFormatado.coluna2.itens as item}
+                      <li>{item}</li>
+                    {/each}
+                  </ul>
+                </div>
+              </div>
+              
+              {#if enunciadoFormatado.conclusao}
+                <p class="questao-conclusao">{enunciadoFormatado.conclusao}</p>
+              {/if}
+            </div>
+          {:else}
+            <div class="questao-enunciado-estruturado">
+              <p class="questao-introducao">{enunciadoFormatado.introducao}</p>
+              <ul class="questao-alternativas-enunciado">
+                {#each enunciadoFormatado.alternativas as alternativa}
+                  <li>{alternativa}</li>
+                {/each}
+              </ul>
+              {#if enunciadoFormatado.conclusao}
+                <p class="questao-conclusao">{enunciadoFormatado.conclusao}</p>
+              {/if}
+            </div>
+          {/if}
+        {:else}
+          <p class="questao-enunciado">{questaoAtual.enunciado}</p>
+        {/if}
+
+        {#if questaoAtual.imagens && questaoAtual.imagens.length}
+          <div class="questao-imagens">
+            {#each questaoAtual.imagens as imagem, idx}
+              <div class="questao-imagem-container">
+                <img
+                  class="questao-imagem"
+                  src={imagem}
+                  alt={`Imagem ${idx + 1} da questão ${questaoAtual.id}`}
+                  loading="lazy"
+                />
+              </div>
+            {/each}
+          </div>
+        {/if}
 
         <ul class="questao-opcoes">
           {#each questaoAtual.opcoes as opcao}
@@ -771,6 +1084,130 @@
     color: rgba(226, 232, 240, 0.9);
     line-height: 1.7;
     font-size: 1.05rem;
+  }
+
+  .questao-enunciado-estruturado {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+  }
+
+  .questao-introducao {
+    color: rgba(226, 232, 240, 0.9);
+    line-height: 1.7;
+    font-size: 1.05rem;
+    margin: 0;
+  }
+
+  .questao-alternativas-enunciado {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    background: rgba(15, 23, 42, 0.4);
+    border-radius: 12px;
+    padding: 1.2rem;
+    border: 1px solid rgba(148, 163, 184, 0.15);
+  }
+
+  .questao-alternativas-enunciado li {
+    color: rgba(226, 232, 240, 0.85);
+    line-height: 1.6;
+    font-size: 1rem;
+    padding-left: 0;
+    position: relative;
+  }
+
+  .questao-conclusao {
+    color: rgba(226, 232, 240, 0.9);
+    line-height: 1.7;
+    font-size: 1.05rem;
+    margin: 0;
+    font-weight: 600;
+  }
+
+  .questao-enunciado-colunas {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+  }
+
+  .colunas-container {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 2rem;
+    background: rgba(15, 23, 42, 0.4);
+    border-radius: 12px;
+    padding: 1.5rem;
+    border: 1px solid rgba(148, 163, 184, 0.15);
+  }
+
+  .coluna h4 {
+    color: rgba(226, 232, 240, 0.9);
+    font-size: 1rem;
+    font-weight: 600;
+    margin: 0 0 1rem 0;
+    padding-bottom: 0.5rem;
+    border-bottom: 1px solid rgba(148, 163, 184, 0.2);
+  }
+
+  .coluna-lista {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+
+  .coluna-lista li {
+    color: rgba(226, 232, 240, 0.85);
+    line-height: 1.6;
+    font-size: 1rem;
+    padding: 0.5rem 0;
+  }
+
+  @media (max-width: 768px) {
+    .colunas-container {
+      grid-template-columns: 1fr;
+      gap: 1.5rem;
+    }
+  }
+
+  .questao-imagens {
+    display: flex;
+    gap: 0.75rem;
+    flex-wrap: wrap;
+    margin: 0.85rem 0 0.25rem;
+  }
+
+  .questao-imagem-container {
+    overflow: hidden;
+    border-radius: 12px;
+    border: 1px solid rgba(148, 163, 184, 0.18);
+    box-shadow: 0 10px 25px rgba(15, 23, 42, 0.35);
+    background: rgba(15, 23, 42, 0.6);
+    cursor: zoom-in;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+  }
+
+  .questao-imagem-container:hover {
+    transform: scale(1.05);
+    box-shadow: 0 20px 40px rgba(15, 23, 42, 0.5);
+    z-index: 10;
+    position: relative;
+  }
+
+  .questao-imagem {
+    max-width: 100%;
+    display: block;
+    transition: transform 0.3s ease;
+  }
+
+  .questao-imagem-container:hover .questao-imagem {
+    transform: scale(1.1);
   }
 
   .questao-opcoes {

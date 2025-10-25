@@ -49,7 +49,7 @@ const TEST_USER = {
 	password: 'TestePainel123',
 	nome: 'Aluno Painel Teste',
 	whatsapp: '+55 11 98888-0000',
-	status: 'Ativo'
+	status: 'ativo'
 };
 
 const QUESTOES = [
