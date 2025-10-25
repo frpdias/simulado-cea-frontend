@@ -9,6 +9,10 @@
   $: usuarios = data.usuarios || [];
   $: stats = data.stats || { totalUsuarios: 0, totalSimulados: 0, usuariosAtivos: 0 };
   
+  // Estado para loading e feedback
+  let actionLoading: { [key: string]: boolean } = {};
+  let actionMessages: { [key: string]: string } = {};
+  
   function formatDate(dateString: string) {
     if (!dateString) return 'Nunca';
     return new Date(dateString).toLocaleDateString('pt-BR', {
@@ -35,6 +39,96 @@
     if (daysSince <= 7) return 'Ativo';
     if (daysSince <= 30) return 'Recente';
     return 'Inativo';
+  }
+  
+  // Calcular dias restantes para expiração (30 dias desde último acesso)
+  function getDaysRemaining(lastSignIn: string) {
+    if (!lastSignIn) return 30; // Se nunca acessou, tem 30 dias
+    const daysSince = (Date.now() - new Date(lastSignIn).getTime()) / (1000 * 60 * 60 * 24);
+    const remaining = 30 - Math.floor(daysSince);
+    return Math.max(0, remaining);
+  }
+  
+  function getExpirationStatus(daysRemaining: number) {
+    if (daysRemaining <= 3) return 'expiring-soon';
+    if (daysRemaining <= 7) return 'expiring-warning';
+    return 'expiring-normal';
+  }
+  
+  // Ações do usuário
+  async function updateUserStatus(userId: string, newStatus: 'ativo' | 'suspenso' | 'inativo') {
+    const actionKey = `status-${userId}`;
+    actionLoading[actionKey] = true;
+    
+    try {
+      const response = await fetch('/api/admin/usuarios', {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          userId,
+          action: 'updateStatus',
+          status: newStatus
+        })
+      });
+      
+      const result = await response.json();
+      
+      if (result.success) {
+        // Atualizar o usuário na lista local
+        usuarios = usuarios.map(u => 
+          u.id === userId ? { ...u, status: newStatus } : u
+        );
+        actionMessages[actionKey] = `Status atualizado para ${newStatus}`;
+        setTimeout(() => delete actionMessages[actionKey], 3000);
+      } else {
+        throw new Error(result.error);
+      }
+    } catch (error) {
+      actionMessages[actionKey] = `Erro: ${error.message}`;
+      setTimeout(() => delete actionMessages[actionKey], 3000);
+    } finally {
+      actionLoading[actionKey] = false;
+    }
+  }
+  
+  async function deleteUser(userId: string, userEmail: string) {
+    if (!confirm(`Tem certeza que deseja excluir o usuário ${userEmail}? Esta ação não pode ser desfeita.`)) {
+      return;
+    }
+    
+    const actionKey = `delete-${userId}`;
+    actionLoading[actionKey] = true;
+    
+    try {
+      const response = await fetch('/api/admin/usuarios', {
+        method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          userId
+        })
+      });
+      
+      const result = await response.json();
+      
+      if (result.success) {
+        // Remover o usuário da lista local
+        usuarios = usuarios.filter(u => u.id !== userId);
+        stats.totalUsuarios = usuarios.length;
+        actionMessages[actionKey] = 'Usuário excluído com sucesso';
+        setTimeout(() => delete actionMessages[actionKey], 3000);
+      } else {
+        throw new Error(result.error);
+      }
+    } catch (error) {
+      actionMessages[actionKey] = `Erro: ${error.message}`;
+      setTimeout(() => delete actionMessages[actionKey], 3000);
+    } finally {
+      actionLoading[actionKey] = false;
+    }
   }
 </script>
 
@@ -102,11 +196,15 @@
             <th>Telefone</th>
             <th>Status</th>
             <th>Último Acesso</th>
+            <th>Validade (30 dias)</th>
             <th>Cadastro</th>
+            <th>Ações</th>
           </tr>
         </thead>
         <tbody>
           {#each usuarios as usuario}
+            {@const daysRemaining = getDaysRemaining(usuario.last_sign_in_at)}
+            {@const userStatus = usuario.status || 'ativo'}
             <tr>
               <td>
                 <div class="user-cell">
@@ -117,18 +215,94 @@
                 </div>
               </td>
               <td class="email-cell">{usuario.email}</td>
-              <td>{usuario.telefone || 'Não informado'}</td>
+              <td>{usuario.telefone || usuario.whatsapp || 'Não informado'}</td>
               <td>
-                <span class="status-badge {getStatusClass(usuario.last_sign_in_at)}">
-                  {getStatusText(usuario.last_sign_in_at)}
+                <span class="user-status-badge status-{userStatus}">
+                  {#if userStatus === 'ativo'}✅ Ativo
+                  {:else if userStatus === 'suspenso'}⚠️ Suspenso
+                  {:else}❌ Inativo
+                  {/if}
                 </span>
               </td>
               <td class="date-cell">{formatDate(usuario.last_sign_in_at)}</td>
-              <td class="date-cell">{formatDate(usuario.created_at)}</td>
+              <td>
+                <div class="expiration-cell">
+                  <span class="days-remaining {getExpirationStatus(daysRemaining)}">
+                    {daysRemaining} dias
+                  </span>
+                  {#if daysRemaining <= 3}
+                    <span class="expiration-warning">⚠️</span>
+                  {/if}
+                </div>
+              </td>
+              <td class="date-cell">{formatDate(usuario.created_at || usuario.data_cadastro)}</td>
+              <td>
+                <div class="user-actions">
+                  {#if userStatus === 'ativo'}
+                    <button 
+                      class="action-btn suspend-btn"
+                      disabled={actionLoading[`status-${usuario.id}`]}
+                      on:click={() => updateUserStatus(usuario.id, 'suspenso')}
+                      title="Suspender usuário"
+                    >
+                      {#if actionLoading[`status-${usuario.id}`]}
+                        ⏳
+                      {:else}
+                        ⏸️
+                      {/if}
+                    </button>
+                  {:else if userStatus === 'suspenso'}
+                    <button 
+                      class="action-btn activate-btn"
+                      disabled={actionLoading[`status-${usuario.id}`]}
+                      on:click={() => updateUserStatus(usuario.id, 'ativo')}
+                      title="Ativar usuário"
+                    >
+                      {#if actionLoading[`status-${usuario.id}`]}
+                        ⏳
+                      {:else}
+                        ✅
+                      {/if}
+                    </button>
+                  {:else}
+                    <button 
+                      class="action-btn activate-btn"
+                      disabled={actionLoading[`status-${usuario.id}`]}
+                      on:click={() => updateUserStatus(usuario.id, 'ativo')}
+                      title="Ativar usuário"
+                    >
+                      {#if actionLoading[`status-${usuario.id}`]}
+                        ⏳
+                      {:else}
+                        ✅
+                      {/if}
+                    </button>
+                  {/if}
+                  
+                  <button 
+                    class="action-btn delete-btn"
+                    disabled={actionLoading[`delete-${usuario.id}`]}
+                    on:click={() => deleteUser(usuario.id, usuario.email)}
+                    title="Excluir usuário"
+                  >
+                    {#if actionLoading[`delete-${usuario.id}`]}
+                      ⏳
+                    {:else}
+                      🗑️
+                    {/if}
+                  </button>
+                </div>
+                
+                {#if actionMessages[`status-${usuario.id}`] || actionMessages[`delete-${usuario.id}`]}
+                  <div class="action-message">
+                    {actionMessages[`status-${usuario.id}`] || actionMessages[`delete-${usuario.id}`]}
+                  </div>
+                {/if}
+              </td>
             </tr>
           {:else}
             <tr>
-              <td colspan="6" class="empty-state">
+              <td colspan="8" class="empty-state">
                 <div class="empty-content">
                   <div class="empty-icon">👥</div>
                   <h4>Nenhum usuário encontrado</h4>
@@ -391,6 +565,139 @@
     font-weight: 500;
     text-transform: uppercase;
     letter-spacing: 0.5px;
+  }
+  
+  .user-status-badge {
+    padding: 6px 12px;
+    border-radius: var(--radius-md);
+    font-size: var(--text-xs);
+    font-weight: 500;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+  }
+  
+  .status-ativo {
+    background: rgba(16, 185, 129, 0.15);
+    color: #059669;
+    border: 1px solid rgba(16, 185, 129, 0.3);
+  }
+  
+  .status-suspenso {
+    background: rgba(245, 158, 11, 0.15);
+    color: #d97706;
+    border: 1px solid rgba(245, 158, 11, 0.3);
+  }
+  
+  .status-inativo {
+    background: rgba(239, 68, 68, 0.15);
+    color: #dc2626;
+    border: 1px solid rgba(239, 68, 68, 0.3);
+  }
+  
+  .expiration-cell {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-xs);
+  }
+  
+  .days-remaining {
+    padding: 4px 8px;
+    border-radius: var(--radius-sm);
+    font-size: var(--text-xs);
+    font-weight: 600;
+  }
+  
+  .expiring-normal {
+    background: rgba(16, 185, 129, 0.1);
+    color: #059669;
+  }
+  
+  .expiring-warning {
+    background: rgba(245, 158, 11, 0.1);
+    color: #d97706;
+  }
+  
+  .expiring-soon {
+    background: rgba(239, 68, 68, 0.1);
+    color: #dc2626;
+  }
+  
+  .expiration-warning {
+    font-size: 14px;
+    animation: pulse 2s infinite;
+  }
+  
+  @keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.5; }
+  }
+  
+  .user-actions {
+    display: flex;
+    gap: var(--spacing-xs);
+    align-items: center;
+  }
+  
+  .action-btn {
+    width: 32px;
+    height: 32px;
+    border: none;
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+    transition: all 0.2s ease;
+  }
+  
+  .action-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+  
+  .activate-btn {
+    background: rgba(16, 185, 129, 0.1);
+    color: #059669;
+    border: 1px solid rgba(16, 185, 129, 0.3);
+  }
+  
+  .activate-btn:hover:not(:disabled) {
+    background: rgba(16, 185, 129, 0.2);
+    transform: scale(1.05);
+  }
+  
+  .suspend-btn {
+    background: rgba(245, 158, 11, 0.1);
+    color: #d97706;
+    border: 1px solid rgba(245, 158, 11, 0.3);
+  }
+  
+  .suspend-btn:hover:not(:disabled) {
+    background: rgba(245, 158, 11, 0.2);
+    transform: scale(1.05);
+  }
+  
+  .delete-btn {
+    background: rgba(239, 68, 68, 0.1);
+    color: #dc2626;
+    border: 1px solid rgba(239, 68, 68, 0.3);
+  }
+  
+  .delete-btn:hover:not(:disabled) {
+    background: rgba(239, 68, 68, 0.2);
+    transform: scale(1.05);
+  }
+  
+  .action-message {
+    margin-top: var(--spacing-xs);
+    padding: 4px 8px;
+    border-radius: var(--radius-sm);
+    font-size: var(--text-xs);
+    background: rgba(99, 102, 241, 0.1);
+    color: #6366f1;
+    border: 1px solid rgba(99, 102, 241, 0.2);
   }
   
   .status-active {
