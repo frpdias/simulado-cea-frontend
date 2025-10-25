@@ -1,49 +1,52 @@
-import { redirect } from '@sveltejs/kit';
+import type { PageServerLoad } from './$types';
 import { supabaseAdmin } from '$lib/server/supabaseAdmin';
+import { redirect } from '@sveltejs/kit';
+import { requireAdminAuth } from '$lib/server/adminAuth';
 
-export const load = async ({ locals }: { locals: any }) => {
+export const load: PageServerLoad = async ({ locals }) => {
   const session = await locals.getSession();
   
   if (!session) {
     throw redirect(303, '/admin-login');
   }
-  
-  const email = session.user.email?.toLowerCase();
-  const isAdmin = email === 'frpdias@icloud.com';
+
+  // Verificar se o usuário tem permissões de admin
+  const isAdmin = await requireAdminAuth(session);
   
   if (!isAdmin) {
-    throw redirect(303, '/');
+    console.log(`🚫 Acesso negado ao admin para: ${session.user.email}`);
+    throw redirect(303, '/login?error=acesso-negado');
   }
-  
+
   try {
-    // Buscar usuários cadastrados
+    // Buscar dados dos usuários
     const { data: usuarios, error: usuariosError } = await supabaseAdmin
       .from('usuarios')
-      .select('*')
-      .order('created_at', { ascending: false });
-    
+      .select('id, nome, email, whatsapp, status, data_cadastro')
+      .order('data_cadastro', { ascending: false });
+
     if (usuariosError) {
       console.error('Erro ao buscar usuários:', usuariosError);
     }
-    
-    // Buscar estatísticas de simulados (se existir a tabela)
+
+    // Buscar estatísticas de simulados
     const { count: totalSimulados } = await supabaseAdmin
-      .from('respostas')
+      .from('simulados_respostas')
       .select('*', { count: 'exact', head: true });
-    
+
     return {
       usuarios: usuarios || [],
-      stats: {
+      estatisticas: {
         totalUsuarios: usuarios?.length || 0,
         totalSimulados: totalSimulados || 0,
-        usuariosAtivos: usuarios?.filter(u => u.last_sign_in_at).length || 0
+        usuariosAtivos: usuarios?.filter(u => u.status === 'ativo').length || 0
       }
     };
   } catch (error) {
     console.error('Erro no servidor admin:', error);
     return {
       usuarios: [],
-      stats: {
+      estatisticas: {
         totalUsuarios: 0,
         totalSimulados: 0,
         usuariosAtivos: 0
